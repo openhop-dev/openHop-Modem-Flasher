@@ -1,3 +1,6 @@
-## MeshCore flasher
+## flasher.meshcore.io
 
-used on: https://flasher.meshcore.co.uk/
+Frontend part of the flasher 
+- esp32 flashing using esptool.js
+- custom nrf52 serial flashing based on adafruit-nrfutil
+- serial console
