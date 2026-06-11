@@ -1,6 +1,8 @@
-## flasher.meshcore.io
+# pyMC MeshCore Flasher
 
-Frontend part of the flasher 
-- esp32 flashing using esptool.js
-- custom nrf52 serial flashing based on adafruit-nrfutil
-- serial console
+Static browser flasher for loading pyMC Modem firmware onto supported MeshCore-compatible devices.
+
+- ESP32 flashing using esptool.js
+- nRF52 serial DFU flashing based on adafruit-nrfutil
+- Serial console
+- Firmware files are loaded from pyMC-dev/pymc_modem raw firmware folders

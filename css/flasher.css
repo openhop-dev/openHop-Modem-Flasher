@@ -41,7 +41,10 @@ body:has([v-cloak]):after {
 }
 
 #app h5.logo-top img {
-  height: 16px;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  object-fit: cover;
   margin-top: -4px;
 }
 
