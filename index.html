@@ -289,7 +289,12 @@
                       <img class="icon" :title="device.type" :src="`/img/${device.type}.svg`" v-if="device.type !== 'noflash'">
                       <i v-else>developer_board</i>
                       <span>{{ device.name }}</span>
-                      <div class="tooltip right max" v-if="device.tooltip" v-html="device.tooltip"></div>
+                      <div class="tooltip right max" v-if="device.image || device.tooltip">
+                        <img class="device" :src="device.image" v-if="device.image">
+                        <template v-if="device.tooltip">
+                          <span v-html="device.tooltip"></span>
+                        </template>
+                      </div>
                       <div class="max"></div>
                     </button>
                     <div class="max"></div>
