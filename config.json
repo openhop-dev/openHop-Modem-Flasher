@@ -215,6 +215,50 @@
 		{
 			"maker": "heltec",
 			"class": "pymc",
+			"name": "Heltec Tracker V2",
+			"icon": "/img/lora.svg",
+			"type": "esp32",
+			"firmware": [
+				{
+					"role": "pymcModem",
+					"version": {
+						"main": {
+							"notes": "Current Heltec Tracker V2 pyMC Modem firmware from pyMC-dev/pymc_modem main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"files": [
+								{
+									"type": "flash-update",
+									"name": "heltec_tracker_v2/firmware.bin",
+									"title": "Update firmware only (firmware.bin)",
+									"address": 65536
+								},
+								{
+									"type": "flash-wipe",
+									"name": "heltec_tracker_v2/bootloader.bin",
+									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"address": 0
+								},
+								{
+									"type": "flash-wipe",
+									"name": "heltec_tracker_v2/partitions.bin",
+									"title": "Erase/full flash: partitions.bin @ 0x8000",
+									"address": 32768
+								},
+								{
+									"type": "flash-wipe",
+									"name": "heltec_tracker_v2/firmware.bin",
+									"title": "Erase/full flash: firmware.bin @ 0x10000",
+									"address": 65536
+								}
+							]
+						}
+					}
+				}
+			],
+			"image": "/img/heltec_wt2.svg"
+		},
+		{
+			"maker": "heltec",
+			"class": "pymc",
 			"name": "Heltec V4",
 			"icon": "/img/lora.svg",
 			"type": "esp32",

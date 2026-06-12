@@ -21,6 +21,7 @@ Most firmware files are loaded directly from the `pyMC-dev/pymc_modem` firmware 
 - ESP32-P4 Nano
 - Ethermesh-1W
 - Heltec T114
+- Heltec Tracker V2
 - Heltec V3
 - Heltec V4
 - Ikoka Stick
