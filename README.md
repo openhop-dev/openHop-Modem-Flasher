@@ -20,6 +20,7 @@ Most firmware files are loaded directly from the `pyMC-dev/pymc_modem` firmware 
 
 - ESP32-P4 Nano
 - Ethermesh-1W
+- Photon-1W XAIO ESP32 C6
 - Heltec T114
 - Heltec Tracker V2
 - Heltec V3

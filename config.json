@@ -27,8 +27,8 @@
 		"seeed": {
 			"name": "Seeed Studio"
 		},
-		"ethermesh": {
-			"name": "EtherMesh"
+		"meshsmith": {
+			"name": "MeshSmith"
 		},
 		"bq": {
 			"name": "B&Q Consulting"
@@ -36,7 +36,7 @@
 	},
 	"device": [
 		{
-			"maker": "ethermesh",
+			"maker": "meshsmith",
 			"class": "pymc",
 			"name": "Ethermesh-1W",
 			"icon": "/img/lora.svg",
@@ -67,6 +67,51 @@
 			],
 			"tooltip": "Ethermesh-1W ESP device",
 			"order": 0
+		},
+		{
+			"maker": "meshsmith",
+			"class": "pymc",
+			"name": "Photon-1W XAIO ESP32 C6",
+			"icon": "/img/lora.svg",
+			"type": "esp32",
+			"firmware": [
+				{
+					"role": "pymcModem",
+					"version": {
+						"custom": {
+							"notes": "Newest MeshSmith Photon-1W XIAO ESP32-C6 pyMC Modem firmware bundled with this flasher repo. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"files": [
+								{
+									"type": "flash-update",
+									"name": "/firmware/photon_1w_xiao_esp32c6/firmware.bin",
+									"title": "Update firmware only (firmware.bin)",
+									"address": 65536
+								},
+								{
+									"type": "flash-wipe",
+									"name": "/firmware/photon_1w_xiao_esp32c6/bootloader.bin",
+									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"address": 0
+								},
+								{
+									"type": "flash-wipe",
+									"name": "/firmware/photon_1w_xiao_esp32c6/partitions.bin",
+									"title": "Erase/full flash: partitions.bin @ 0x8000",
+									"address": 32768
+								},
+								{
+									"type": "flash-wipe",
+									"name": "/firmware/photon_1w_xiao_esp32c6/firmware.bin",
+									"title": "Erase/full flash: firmware.bin @ 0x10000",
+									"address": 65536
+								}
+							]
+						}
+					}
+				}
+			],
+			"image": "/img/xiao_esp32c6.svg",
+			"order": 1
 		},
 		{
 			"maker": "generic",
