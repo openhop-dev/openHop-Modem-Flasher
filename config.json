@@ -324,29 +324,29 @@
 					"role": "pymcModem",
 					"version": {
 						"custom": {
-							"notes": "Heltec V4 pyMC Modem firmware from pyMC-dev/pymc_modem. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Heltec V4 pyMC Modem firmware bundled with this flasher repo. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
-									"name": "heltec_v4/firmware.bin",
+									"name": "/firmware/heltec_v4/firmware.bin",
 									"title": "Update firmware only (firmware.bin)",
 									"address": 65536
 								},
 								{
 									"type": "flash-wipe",
-									"name": "heltec_v4/bootloader.bin",
+									"name": "/firmware/heltec_v4/bootloader.bin",
 									"title": "Erase/full flash: bootloader.bin @ 0x0",
 									"address": 0
 								},
 								{
 									"type": "flash-wipe",
-									"name": "heltec_v4/partitions.bin",
+									"name": "/firmware/heltec_v4/partitions.bin",
 									"title": "Erase/full flash: partitions.bin @ 0x8000",
 									"address": 32768
 								},
 								{
 									"type": "flash-wipe",
-									"name": "heltec_v4/firmware.bin",
+									"name": "/firmware/heltec_v4/firmware.bin",
 									"title": "Erase/full flash: firmware.bin @ 0x10000",
 									"address": 65536
 								}
