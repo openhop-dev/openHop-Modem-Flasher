@@ -626,7 +626,7 @@ function setup() {
   };
 
   const devices = computed(() => {
-    const classes = ['ethermesh', 'openhop', 'ripple', 'meshos', 'community'];
+    const classes = ['openhop', 'ripple', 'meshos', 'community'];
     const deviceGroups = {};
 
     for(const cls of classes) {

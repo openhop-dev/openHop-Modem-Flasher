@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>openHop MeshCore Flasher</title>
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="/img/openhop_logo_vector_transparent.svg">
+  <link rel="icon" type="image/png" href="/img/openhop_logo.png">
   <link rel="apple-touch-icon" href="/img/openhop_logo.png">
   <meta name="description" content="Flash openHop Modem firmware onto supported MeshCore-compatible ESP32 and nRF52 devices directly from your browser.">
   <meta name="theme-color" content="#111827">
@@ -138,8 +138,14 @@
               <input type="checkbox" v-model="selected.wipe">
               <span>Erase Device</span>
               <div class="tooltip right max">
-                Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
-                Use this when converting a node to openHop modem firmware or recovering a broken install.
+                <template v-if="selected.firmware.role === 'ethermeshFirmware'">
+                  Erases the whole ESP32 flash, then writes the EtherMesh firmware image.
+                  Use this when converting a node to EtherMesh firmware or recovering a broken install.
+                </template>
+                <template v-else>
+                  Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
+                  Use this when converting a node to openHop modem firmware or recovering a broken install.
+                </template>
               </div>
             </label>
           </li>
@@ -240,7 +246,7 @@
           <nav>
             <i>bolt</i>
             <h5 class="small max logo-top">
-              <img src="/img/openhop_logo_vector_transparent.svg" alt="openHop logo"> <span>openHop MeshCore Flasher</span>
+              <img src="/img/openhop_logo.png" alt="openHop logo"> <span>openHop MeshCore Flasher</span>
             </h5>
             <button class="transparent" @click="openSerialCon()">
               <i>terminal</i>
@@ -262,16 +268,12 @@
             <details open>
               <summary style="background-color: var(--surface-container)">
                 <div>
-                  <strong v-if="type === 'ethermesh'">EtherMesh Firmware</strong>
-                  <strong v-else-if="type === 'openhop'">openHop Modem Firmware</strong>
+                  <strong v-if="type === 'openhop'">openHop Modem Firmware</strong>
                   <strong v-else-if="type === 'ripple'">Ripple Firmware</strong>
                   <strong v-else-if="type === 'meshos'">MeshOS Firmware</strong>
                   <strong v-else-if="type === 'community'">Other Firmwares</strong>
                   <div class="tooltip right max">
-                    <template v-if="type === 'ethermesh'">
-                      EtherMesh firmware bundled with this flasher.
-                    </template>
-                    <template v-else-if="type === 'openhop'">
+                    <template v-if="type === 'openhop'">
                       openHop Modem firmware provided by <a class="inverse-link" target="_blank" href="https://github.com/pyMC-dev/pymc_modem">upstream firmware repository</a>
                     </template>
                     <template v-else-if="type === 'ripple'">

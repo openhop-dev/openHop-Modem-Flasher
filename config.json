@@ -42,7 +42,7 @@
 	"device": [
 		{
 			"maker": "meshsmith",
-			"class": "ethermesh",
+			"class": "openhop",
 			"slug": "ethermesh-1w",
 			"name": "EtherMesh-1W",
 			"icon": "/img/lora.svg",
