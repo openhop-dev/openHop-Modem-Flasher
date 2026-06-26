@@ -1,5 +1,9 @@
 {
 	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
+	"firmwareRefs": [
+		"v1.0.0",
+		"main"
+	],
 	"role": {
 		"openHopModem": {
 			"icon": "cell_tower",

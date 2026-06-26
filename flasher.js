@@ -102,6 +102,28 @@ function addGithubFiles() {
   return config;
 }
 
+function addFirmwareRefs() {
+  const refs = config.firmwareRefs;
+  if(!Array.isArray(refs) || refs.length === 0) return config;
+
+  for(const device of config.device) {
+    for(const firmware of device.firmware) {
+      const mainVersion = firmware.version?.main;
+      if(!mainVersion) continue;
+
+      const versions = {};
+      for(const ref of refs) {
+        const version = structuredClone(mainVersion);
+        version.ref = ref;
+        versions[ref] = version;
+      }
+      firmware.version = versions;
+    }
+  }
+
+  return config;
+}
+
 async function digestMessage(message) {
   const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
   const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
@@ -125,7 +147,8 @@ async function blobToBinaryString(blob) {
   return binString;
 }
 
-console.log(addGithubFiles());
+addGithubFiles();
+console.log(addFirmwareRefs());
 
 function setup() {
   const consoleEditBox = ref();
@@ -224,7 +247,11 @@ function setup() {
   }
 
   const getFirmwarePath = (file) => {
-    return file.name.startsWith('/') ? file.name : `${config.staticPath}/${file.name}`;
+    if(file.name.startsWith('/')) return file.name;
+
+    const ref = selected.firmware?.version?.[selected.version]?.ref;
+    const staticPath = ref ? config.staticPath.replace('/main/firmware', `/${ref}/firmware`) : config.staticPath;
+    return `${staticPath}/${file.name}`;
   }
 
   const firmwareHasData = (firmware) => {
