@@ -138,14 +138,8 @@
               <input type="checkbox" v-model="selected.wipe">
               <span>Erase Device</span>
               <div class="tooltip right max">
-                <template v-if="selected.firmware.role === 'ethermeshFirmware'">
-                  Erases the whole ESP32 flash, then writes the EtherMesh firmware image.
-                  Use this when converting a node to EtherMesh firmware or recovering a broken install.
-                </template>
-                <template v-else>
-                  Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
-                  Use this when converting a node to openHop modem firmware or recovering a broken install.
-                </template>
+                Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
+                Use this when converting a node to openHop modem firmware or recovering a broken install.
               </div>
             </label>
           </li>

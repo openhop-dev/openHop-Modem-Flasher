@@ -1,11 +1,6 @@
 {
 	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
 	"role": {
-		"ethermeshFirmware": {
-			"icon": "cell_tower",
-			"title": "EtherMesh Firmware",
-			"tooltip": "Flash the current EtherMesh firmware from the openHop modem repository folders."
-		},
 		"openHopModem": {
 			"icon": "cell_tower",
 			"title": "openHop Modem",
@@ -49,7 +44,7 @@
 			"type": "esp32",
 			"firmware": [
 				{
-					"role": "ethermeshFirmware",
+					"role": "openHopModem",
 					"slug": "ethermesh",
 					"version": {
 						"main": {
