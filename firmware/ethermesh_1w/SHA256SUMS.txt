@@ -1,2 +1,0 @@
-f88b980a4117212aa1cbb6be92bff64610581edea0bdec8bf3fd4a4e19749214  factory.bin
-3baabfbdf35b7a729bf888002b840dba9e605cd1568fb48ee4567736a8bd3239  firmware.bin

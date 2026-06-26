@@ -1,15 +1,15 @@
 {
-	"staticPath": "https://raw.githubusercontent.com/pyMC-dev/pymc_modem/main/firmware",
+	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
 	"role": {
 		"ethermeshFirmware": {
 			"icon": "cell_tower",
 			"title": "EtherMesh Firmware",
-			"tooltip": "Flash EtherMesh firmware bundled with this flasher repo."
+			"tooltip": "Flash the current EtherMesh firmware from the openHop modem repository folders."
 		},
 		"openHopModem": {
 			"icon": "cell_tower",
 			"title": "openHop Modem",
-			"tooltip": "Flash the current openHop Modem firmware from the upstream firmware repository folders."
+			"tooltip": "Flash the current openHop Modem firmware from the openHop modem repository folders."
 		}
 	},
 	"notice": {},
@@ -52,20 +52,32 @@
 					"role": "ethermeshFirmware",
 					"slug": "ethermesh",
 					"version": {
-						"custom": {
-							"notes": "Custom EtherMesh 1W firmware bundled with this flasher repo. Use Flash for firmware updates, or check Erase Device to erase the device and flash the factory image.",
+						"main": {
+							"notes": "Current EtherMesh-1W firmware from the openHop modem repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
-									"name": "/firmware/ethermesh_1w/firmware.bin",
+									"name": "ethermesh_1w/firmware.bin",
 									"title": "Update firmware only (firmware.bin)",
 									"address": 65536
 								},
 								{
 									"type": "flash-wipe",
-									"name": "/firmware/ethermesh_1w/factory.bin",
-									"title": "Erase/full flash: factory.bin @ 0x0",
+									"name": "ethermesh_1w/bootloader.bin",
+									"title": "Erase/full flash: bootloader.bin @ 0x0",
 									"address": 0
+								},
+								{
+									"type": "flash-wipe",
+									"name": "ethermesh_1w/partitions.bin",
+									"title": "Erase/full flash: partitions.bin @ 0x8000",
+									"address": 32768
+								},
+								{
+									"type": "flash-wipe",
+									"name": "ethermesh_1w/firmware.bin",
+									"title": "Erase/full flash: firmware.bin @ 0x10000",
+									"address": 65536
 								}
 							]
 						}

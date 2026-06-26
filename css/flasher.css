@@ -125,7 +125,8 @@ body:has([v-cloak]):after {
 #app .version .pre {
   padding-bottom: 10px;
 }
-#app img.icon {
+#app img.icon,
+#app svg.icon {
   height: 20px;
 }
 

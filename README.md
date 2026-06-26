@@ -4,9 +4,13 @@ openHop MeshCore Flasher is a static, browser-based firmware flasher for loading
 
 The modem firmware variants are maintained in the openHop modem repository:
 
-https://github.com/pyMC-dev/pymc_modem
+https://github.com/openhop-dev/openhop_modem
 
-Most firmware files are loaded directly from the upstream firmware repository folders. Temporary/custom firmware that is not yet upstream may be bundled under this repo's `firmware/` directory until it is moved.
+User documentation is available at:
+
+https://docs.openhop.dev/projects/openhop-modem/
+
+Firmware files are loaded directly from the upstream firmware repository folders.
 
 ## What it does
 
@@ -39,7 +43,7 @@ Most firmware files are loaded directly from the upstream firmware repository fo
 
 Primary firmware source:
 
-https://github.com/pyMC-dev/pymc_modem/tree/main/firmware
+https://github.com/openhop-dev/openhop_modem/tree/main/firmware
 
 The flasher configuration points at raw firmware files from that repository where available. For ESP32 devices, full erase flashing expects this layout per variant:
 
