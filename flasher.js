@@ -124,6 +124,13 @@ function addFirmwareRefs() {
   return config;
 }
 
+function getDefaultFirmwareVersion(firmware) {
+  const versionNames = Object.keys(firmware.version);
+  if(versionNames.includes('main')) return 'main';
+
+  return versionNames[0];
+}
+
 async function digestMessage(message) {
   const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
   const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
@@ -690,7 +697,7 @@ function setup() {
 
   watch(() => selected.firmware, (firmware) => {
     if(firmware == null) return;
-    selected.version = Object.keys(firmware.version)[0];
+    selected.version = getDefaultFirmwareVersion(firmware);
   });
 
   watch(() => selected.device, updateUrl);

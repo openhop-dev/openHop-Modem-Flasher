@@ -1,8 +1,8 @@
 {
 	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
 	"firmwareRefs": [
-		"v1.0.0",
-		"main"
+		"main",
+		"v1.0.0"
 	],
 	"role": {
 		"openHopModem": {
