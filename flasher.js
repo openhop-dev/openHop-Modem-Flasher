@@ -102,9 +102,50 @@ function addGithubFiles() {
   return config;
 }
 
-function addFirmwareRefs() {
-  const refs = config.firmwareRefs;
-  if(!Array.isArray(refs) || refs.length === 0) return config;
+async function getFirmwareReleases() {
+  const releaseConfig = config.firmwareReleases;
+  if(!releaseConfig?.api || !releaseConfig?.tagPattern) return [];
+
+  const tagPattern = new RegExp(releaseConfig.tagPattern);
+  const cacheKey = `firmware-releases:${releaseConfig.api}`;
+  const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+  if(cached?.fetchedAt > Date.now() - (15 * 60 * 1000) && Array.isArray(cached.releases)) {
+    return cached.releases;
+  }
+
+  try {
+    const releasesRes = await fetch(releaseConfig.api, {
+      headers: { Accept: 'application/vnd.github+json' },
+    });
+    if(!releasesRes.ok) {
+      throw new Error(`GitHub releases request failed: ${releasesRes.status}`);
+    }
+
+    const releases = (await releasesRes.json())
+      .filter(release =>
+        !release.draft &&
+        !release.prerelease &&
+        tagPattern.test(release.tag_name)
+      )
+      .map(release => ({
+        tag_name: release.tag_name,
+        html_url: release.html_url,
+      }));
+    localStorage.setItem(cacheKey, JSON.stringify({ fetchedAt: Date.now(), releases }));
+    return releases;
+  } catch(error) {
+    console.warn('Could not refresh firmware releases; using configured fallback tags.', error);
+    return (releaseConfig.fallbackTags ?? [])
+      .filter(tag => tagPattern.test(tag))
+      .map(tag => ({
+        tag_name: tag,
+        html_url: `${releaseConfig.releaseBaseUrl}${tag}`,
+      }));
+  }
+}
+
+async function addFirmwareReleases() {
+  const releases = await getFirmwareReleases();
 
   for(const device of config.device) {
     for(const firmware of device.firmware) {
@@ -112,9 +153,12 @@ function addFirmwareRefs() {
       if(!mainVersion) continue;
 
       const versions = {};
-      for(const ref of refs) {
+      for(const release of releases) {
+        const ref = release.tag_name;
         const version = structuredClone(mainVersion);
         version.ref = ref;
+        version.releaseUrl = release.html_url;
+        version.notes = `Release ${ref}. Open the release page for the full changelog.`;
         versions[ref] = version;
       }
       firmware.version = versions;
@@ -155,7 +199,7 @@ async function blobToBinaryString(blob) {
 }
 
 addGithubFiles();
-console.log(addFirmwareRefs());
+console.log(await addFirmwareReleases());
 
 function setup() {
   const consoleEditBox = ref();
@@ -698,6 +742,7 @@ function setup() {
   watch(() => selected.firmware, (firmware) => {
     if(firmware == null) return;
     selected.version = getDefaultFirmwareVersion(firmware);
+    selected.wipe = selected.device?.type === 'esp32' && firmwareHasFlashWipe();
   });
 
   watch(() => selected.device, updateUrl);

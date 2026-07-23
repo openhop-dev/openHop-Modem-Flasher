@@ -25,7 +25,7 @@
   <meta name="twitter:image" content="/img/openhop_logo.png">
   <link href="/css/beer.css" rel="stylesheet">
   <link href="/css/flasher.css" rel="stylesheet">
-  <script type="module" src="/flasher.js?v=openhop5"></script>
+  <script type="module" src="/flasher.js?v=openhop8"></script>
 </head>
 
 <body class="dark">
@@ -43,6 +43,12 @@
             <i>chevron_right</i>
             <i>{{ selected.firmware.icon || config.role[selected.firmware.role].icon }}</i>
             <span class="small strong">{{ selected.firmware.title || config.role[selected.firmware.role].title }}</span>
+            <div class="max"></div>
+            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
+              <i>article</i>
+              <span>Docs</span>
+              <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
+            </a>
           </nav>
         </header>
         <article v-if="flashing.error">
@@ -103,6 +109,12 @@
             <i>developer_board</i>
             <a class="small" href="javascript:;" @click="stepBack">{{ selected.device.name }}</a>
             <i>chevron_right</i>
+            <div class="max"></div>
+            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
+              <i>article</i>
+              <span>Docs</span>
+              <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
+            </a>
           </nav>
           <article class="no-margin">
             <ul class="list">
@@ -129,6 +141,8 @@
             <div class="max pre" v-if="getSelFwValue('notes')">
               <b>Changelog:</b><br>
               <span v-html="formatChangeLog(getSelFwValue('notes'))"></span>
+              <br>
+              <a v-if="getSelFwValue('releaseUrl')" :href="getSelFwValue('releaseUrl')" target="_blank" rel="noopener noreferrer">View release on GitHub</a>
             </div>
           </nav>
         </header>
@@ -139,7 +153,8 @@
               <span>Erase Device</span>
               <div class="tooltip right max">
                 Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
-                Use this when converting a node to openHop modem firmware or recovering a broken install.
+                Leave this selected for the initial installation, especially if the device previously ran MeshCore or Meshtastic firmware.
+                After openHop Modem is installed, future updates can be installed over the air (OTA) on supported devices.
               </div>
             </label>
           </li>
@@ -194,11 +209,6 @@
           </button>
           <div class="max"></div>
         </template>
-        <a class="button" href="https://docs.openhop.dev/projects/openhop-modem/" target="_blank" rel="noopener noreferrer">
-          <i>article</i>
-          <span>Docs</span>
-          <div class="tooltip left max">Open the openHop Modem documentation</div>
-        </a>
         <button data-ui="#down" class="active" v-if="!getSelFwValue('customFile')">
           <i>download</i>
           <span>Download</span><i>arrow_drop_down</i>
@@ -223,6 +233,12 @@
             <button class="circle transparent" @click="stepBack"><i>arrow_back</i></button>
             <i>developer_board</i>
             <span class="small strong">{{ selected.device.name }}</span>
+            <div class="max"></div>
+            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
+              <i>article</i>
+              <span>Docs</span>
+              <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
+            </a>
           </nav>
           <nav class="no-margin">
             <h6 class="small max">Choose role</h6>
@@ -252,10 +268,10 @@
               <span>Console</span>
               <div class="tooltip left max">Manage Modem devices</div>
             </button>
-            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/" target="_blank" rel="noopener noreferrer">
+            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
               <i>article</i>
               <span>Docs</span>
-              <div class="tooltip left max">Open the openHop Modem documentation</div>
+              <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
             </a>
             <a class="button transparent circle" href="https://github.com/openhop-dev" target="_blank" rel="noopener noreferrer" aria-label="openHop on GitHub">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -342,6 +358,11 @@
         <nav>
           <button class="circle transparent" @click="closeSerialCon()"><i>arrow_back</i></button>
           <h6 class="small max">Serial Console</h6>
+          <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
+            <i>article</i>
+            <span>Docs</span>
+            <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
+          </a>
         </nav>
       </header>
       <pre class="console" ref="consoleWindow" tabindex="0" @mouseup="consoleMouseUp">

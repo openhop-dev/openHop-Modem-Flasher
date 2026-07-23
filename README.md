@@ -8,9 +8,9 @@ https://github.com/openhop-dev/openhop_modem
 
 User documentation is available at:
 
-https://docs.openhop.dev/projects/openhop-modem/
+https://docs.openhop.dev/projects/openhop-modem/flasher/
 
-Firmware files are loaded directly from the upstream firmware repository folders.
+Firmware files are loaded directly from tagged upstream release folders. The version list is discovered from published GitHub releases and includes stable tags matching `vMAJOR.MINOR.PATCH`, starting with v1. Each version links to its GitHub release page.
 
 ## What it does
 
@@ -41,11 +41,11 @@ Firmware files are loaded directly from the upstream firmware repository folders
 
 ## Firmware source
 
-Primary firmware source:
+Firmware release history:
 
-https://github.com/openhop-dev/openhop_modem/tree/main/firmware
+https://github.com/openhop-dev/openhop_modem/releases
 
-The flasher configuration points at raw firmware files from that repository where available. For ESP32 devices, full erase flashing expects this layout per variant:
+The flasher configuration points at raw firmware files from each release tag. For ESP32 devices, full erase flashing expects this layout per variant:
 
 - `bootloader.bin` at `0x0`
 - `partitions.bin` at `0x8000`
