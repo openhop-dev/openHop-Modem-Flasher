@@ -45,7 +45,7 @@ Firmware release history:
 
 https://github.com/openhop-dev/openhop_modem/releases
 
-The flasher configuration points at raw firmware files from each release tag. For ESP32 devices, full erase flashing expects this layout per variant:
+The flasher configuration points at raw firmware files from each release tag. ESP32-P4 devices use the complete `firmware.factory.bin` at `0x0` because their bootloader starts at `0x2000`. Other ESP32 devices use the build-specific full-flash layout, commonly:
 
 - `bootloader.bin` at `0x0`
 - `partitions.bin` at `0x8000`

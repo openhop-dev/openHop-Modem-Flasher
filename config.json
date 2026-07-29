@@ -2,11 +2,10 @@
 	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
 	"firmwareReleases": {
 		"api": "https://api.github.com/repos/openhop-dev/openhop_modem/releases?per_page=100",
-		"tagPattern": "^v[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
+		"tagPattern": "^v(?!1\\.0\\.0$)[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
 		"releaseBaseUrl": "https://github.com/openhop-dev/openhop_modem/releases/tag/",
 		"fallbackTags": [
-			"v1.0.1",
-			"v1.0.0"
+			"v1.0.1"
 		]
 	},
 	"role": {
@@ -57,7 +56,7 @@
 					"slug": "ethermesh",
 					"version": {
 						"main": {
-							"notes": "Current EtherMesh-1W firmware from the openHop modem repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Current EtherMesh-1W firmware from the openHop modem repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -67,21 +66,9 @@
 								},
 								{
 									"type": "flash-wipe",
-									"name": "ethermesh_1w/bootloader.bin",
-									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"name": "ethermesh_1w/firmware.factory.bin",
+									"title": "Erase/full flash: firmware.factory.bin @ 0x0",
 									"address": 0
-								},
-								{
-									"type": "flash-wipe",
-									"name": "ethermesh_1w/partitions.bin",
-									"title": "Erase/full flash: partitions.bin @ 0x8000",
-									"address": 32768
-								},
-								{
-									"type": "flash-wipe",
-									"name": "ethermesh_1w/firmware.bin",
-									"title": "Erase/full flash: firmware.bin @ 0x10000",
-									"address": 65536
 								}
 							]
 						}
@@ -147,7 +134,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -157,21 +144,9 @@
 								},
 								{
 									"type": "flash-wipe",
-									"name": "esp32_p4_nano/bootloader.bin",
-									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"name": "esp32_p4_nano/firmware.factory.bin",
+									"title": "Erase/full flash: firmware.factory.bin @ 0x0",
 									"address": 0
-								},
-								{
-									"type": "flash-wipe",
-									"name": "esp32_p4_nano/partitions.bin",
-									"title": "Erase/full flash: partitions.bin @ 0x8000",
-									"address": 32768
-								},
-								{
-									"type": "flash-wipe",
-									"name": "esp32_p4_nano/firmware.bin",
-									"title": "Erase/full flash: firmware.bin @ 0x10000",
-									"address": 65536
 								}
 							]
 						}
