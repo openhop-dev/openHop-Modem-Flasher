@@ -1,5 +1,5 @@
 import "/lib/beer.min.js";
-import { createApp, reactive, ref, nextTick, watch, computed } from "/lib/vue.min.js";
+import { createApp, reactive, ref, nextTick, watch, computed } from "/lib/vue.prod.min.js";
 import { Dfu } from "/lib/dfu.js";
 import { ESPLoader, Transport, HardReset } from "/lib/esp32.js";
 import { SerialConsole } from '/lib/console.js';
@@ -115,10 +115,10 @@ async function getFirmwareReleases() {
 
   try {
     const releasesRes = await fetch(releaseConfig.api, {
-      headers: { Accept: 'application/vnd.github+json' },
+      headers: { Accept: 'application/json' },
     });
     if(!releasesRes.ok) {
-      throw new Error(`GitHub releases request failed: ${releasesRes.status}`);
+      throw new Error(`Firmware releases request failed: ${releasesRes.status}`);
     }
 
     const releases = (await releasesRes.json())
@@ -149,6 +149,7 @@ async function addFirmwareReleases() {
 
   for(const device of config.device) {
     for(const firmware of device.firmware) {
+      if(firmware.expandReleases === false) continue;
       const mainVersion = firmware.version?.main;
       if(!mainVersion) continue;
 
@@ -199,7 +200,7 @@ async function blobToBinaryString(blob) {
 }
 
 addGithubFiles();
-console.log(await addFirmwareReleases());
+await addFirmwareReleases();
 
 function setup() {
   const consoleEditBox = ref();
@@ -624,8 +625,6 @@ function setup() {
         return;
       }
 
-      console.log({flashFiles, selectedFlashType, selectedFlashFiles, fileArray});
-
       const flashOptions = {
         terminal: log,
         compress: true,
@@ -709,7 +708,7 @@ function setup() {
 
     for(const cls of classes) {
       const devices = config.device.toSorted(
-        (a, b) => ((a.order ?? 1000) - (b.order ?? 1000)) || (a.maker + a.name).localeCompare(b.maker + b.name)
+        (a, b) => ((a.order ?? 1000) - (b.order ?? 1000)) || a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true })
       ).filter(
         d => d.class === cls && (deviceFilterText.value == '' || d.name.toLowerCase().includes(deviceFilterText.value?.toLowerCase()))
       )

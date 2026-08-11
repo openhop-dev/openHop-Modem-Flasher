@@ -1,7 +1,7 @@
 {
 	"staticPath": "https://raw.githubusercontent.com/openhop-dev/openhop_modem/main/firmware",
 	"firmwareReleases": {
-		"api": "https://api.github.com/repos/openhop-dev/openhop_modem/releases?per_page=100",
+		"api": "/api/firmware-releases",
 		"tagPattern": "^v(?!1\\.0\\.0$)[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
 		"releaseBaseUrl": "https://github.com/openhop-dev/openhop_modem/releases/tag/",
 		"fallbackTags": [
@@ -38,8 +38,8 @@
 		"meshsmith": {
 			"name": "MeshSmith"
 		},
-		"bq": {
-			"name": "B&Q Consulting"
+		"uniteng": {
+			"name": "UnitEng"
 		}
 	},
 	"device": [
@@ -75,7 +75,7 @@
 					}
 				}
 			],
-			"tooltip": "EtherMesh-1W ESP device",
+			"image": "/img/meshsmith_ethermesh.png",
 			"order": 0
 		},
 		{
@@ -120,7 +120,7 @@
 					}
 				}
 			],
-			"image": "/img/xiao_esp32c6.svg",
+			"image": "/img/meshsmith_photon.png",
 			"order": 1
 		},
 		{
@@ -155,9 +155,9 @@
 			]
 		},
 		{
-			"maker": "bq",
+			"maker": "uniteng",
 			"class": "openhop",
-			"name": "Station G2",
+			"name": "UnitEng Station G2",
 			"icon": "/img/lora.svg",
 			"type": "esp32",
 			"firmware": [
@@ -165,7 +165,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current B&Q Consulting Station G2 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Current UnitEng Station G2 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -197,6 +197,51 @@
 				}
 			],
 			"image": "/img/station_g2.svg"
+		},
+		{
+			"maker": "uniteng",
+			"class": "openhop",
+			"name": "UnitEng/BQ Voyage Station G3",
+			"icon": "/img/lora.svg",
+			"type": "esp32",
+			"firmware": [
+				{
+					"role": "openHopModem",
+					"expandReleases": false,
+					"version": {
+						"main": {
+							"notes": "Staged for the upcoming UnitEng/BQ Voyage Station G3 openHop Modem firmware. The firmware files are not published in the upstream modem repository yet.",
+							"files": [
+								{
+									"type": "flash-update",
+									"name": "station_g3/firmware.bin",
+									"title": "Update firmware only (firmware.bin)",
+									"address": 65536
+								},
+								{
+									"type": "flash-wipe",
+									"name": "station_g3/bootloader.bin",
+									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"address": 0
+								},
+								{
+									"type": "flash-wipe",
+									"name": "station_g3/partitions.bin",
+									"title": "Erase/full flash: partitions.bin @ 0x8000",
+									"address": 32768
+								},
+								{
+									"type": "flash-wipe",
+									"name": "station_g3/firmware.bin",
+									"title": "Erase/full flash: firmware.bin @ 0x10000",
+									"address": 65536
+								}
+							]
+						}
+					}
+				}
+			],
+			"image": "/img/station_g3.svg"
 		},
 		{
 			"maker": "heltec",

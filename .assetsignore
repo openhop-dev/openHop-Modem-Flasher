@@ -1,0 +1,10 @@
+.assetsignore
+.git
+.github
+.wrangler
+node_modules
+tests
+worker.js
+wrangler.jsonc
+README.md
+LICENSE
