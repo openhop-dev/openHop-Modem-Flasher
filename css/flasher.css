@@ -125,6 +125,58 @@ body:has([v-cloak]):after {
 #app .version .pre {
   padding-bottom: 10px;
 }
+
+#app .erase-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--on-surface);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+}
+
+#app .erase-control > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#app .erase-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: 0 0 1.125rem;
+  box-sizing: border-box;
+  border: 2px solid var(--primary);
+  border-radius: 0.2rem;
+  transition: background-color var(--speed1), border-color var(--speed1);
+}
+
+#app .erase-control > input:checked + .erase-box {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+#app .erase-control > input:checked + .erase-box::after {
+  content: '';
+  width: 0.3rem;
+  height: 0.6rem;
+  margin-top: -0.1rem;
+  border: solid var(--on-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+#app .erase-control > input:focus-visible + .erase-box {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
 #app img.icon,
 #app svg.icon {
   height: 20px;

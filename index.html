@@ -24,7 +24,7 @@
   <meta name="twitter:description" content="Flash openHop Modem firmware onto supported MeshCore-compatible ESP32 and nRF52 devices directly from your browser.">
   <meta name="twitter:image" content="/img/openhop_logo.png">
   <link href="/css/beer.css" rel="stylesheet">
-  <link href="/css/flasher.css" rel="stylesheet">
+  <link href="/css/flasher.css?v=openhop12" rel="stylesheet">
   <script type="module" src="/flasher.js?v=openhop11"></script>
 </head>
 
@@ -148,8 +148,9 @@
         </header>
         <ul class="list border" v-if="selected.device.type === 'esp32' && firmwareHasFlashWipe()">
           <li>
-            <label class="checkbox">
+            <label class="erase-control">
               <input type="checkbox" v-model="selected.wipe">
+              <span class="erase-box" aria-hidden="true"></span>
               <span>Erase Device</span>
               <div class="tooltip right max">
                 Erases the whole ESP32 flash, then writes the openHop modem bootloader, partition table, and firmware.
