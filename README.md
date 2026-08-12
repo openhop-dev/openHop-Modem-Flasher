@@ -33,6 +33,7 @@ Firmware files are loaded directly from tagged upstream release folders. The ver
 - Heltec V4.3
 - Ikoka Stick
 - LilyGo T3S3
+- LilyGo T-Beam-S3 Supreme
 - RAK4631 WisMesh Ethernet
 - RAK WisMesh Base/Rak3112
 - Seeed XIAO ESP32S3 + Wio SX1262

@@ -577,6 +577,51 @@
 			"tooltip": "<img class='device' src='/img/lilygo_t3s3.svg'>"
 		},
 		{
+			"maker": "lilygo",
+			"class": "openhop",
+			"name": "LilyGo T-Beam-S3 Supreme",
+			"icon": "/img/lora.svg",
+			"type": "esp32",
+			"firmware": [
+				{
+					"role": "openHopModem",
+					"expandReleases": false,
+					"version": {
+						"main": {
+							"notes": "Current LilyGo T-Beam-S3 Supreme openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"files": [
+								{
+									"type": "flash-update",
+									"name": "lilygo_tbeam_s3_supreme/firmware.bin",
+									"title": "Update firmware only (firmware.bin)",
+									"address": 65536
+								},
+								{
+									"type": "flash-wipe",
+									"name": "lilygo_tbeam_s3_supreme/bootloader.bin",
+									"title": "Erase/full flash: bootloader.bin @ 0x0",
+									"address": 0
+								},
+								{
+									"type": "flash-wipe",
+									"name": "lilygo_tbeam_s3_supreme/partitions.bin",
+									"title": "Erase/full flash: partitions.bin @ 0x8000",
+									"address": 32768
+								},
+								{
+									"type": "flash-wipe",
+									"name": "lilygo_tbeam_s3_supreme/firmware.bin",
+									"title": "Erase/full flash: firmware.bin @ 0x10000",
+									"address": 65536
+								}
+							]
+						}
+					}
+				}
+			],
+			"tooltip": "<img class='device' src='/img/lilygo_tbeam_supreme.svg'>"
+		},
+		{
 			"maker": "rak",
 			"class": "openhop",
 			"name": "RAK WisMesh Base/Rak3112",
