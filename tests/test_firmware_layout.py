@@ -106,7 +106,8 @@ class FirmwareLayoutTest(unittest.TestCase):
         self.assertEqual(station_g3["maker"], "uniteng")
         self.assertEqual(station_g3["image"], "/img/station_g3.svg")
         self.assertTrue((REPO_ROOT / "img" / "station_g3.svg").is_file())
-        self.assertFalse(station_g3["firmware"][0]["expandReleases"])
+        self.assertNotIn("expandReleases", station_g3["firmware"][0])
+        self.assertEqual(station_g3["firmware"][0]["minimumRelease"], "v1.1.0")
         self.assertNotIn(
             "not published",
             station_g3["firmware"][0]["version"]["main"]["notes"].lower(),
@@ -141,7 +142,7 @@ class FirmwareLayoutTest(unittest.TestCase):
             ],
         )
 
-    def test_rak4631_usb_modem_uses_main_only_nrf52_dfu_package(self):
+    def test_rak4631_usb_modem_uses_v110_and_later_nrf52_dfu_packages(self):
         rak_usb = next(
             device
             for device in self.config["device"]
@@ -152,7 +153,8 @@ class FirmwareLayoutTest(unittest.TestCase):
         self.assertEqual(rak_usb["type"], "nrf52")
         self.assertEqual(rak_usb["image"], "/img/rak_4631.svg")
         self.assertTrue((REPO_ROOT / "img" / "rak_4631.svg").is_file())
-        self.assertFalse(rak_usb["firmware"][0]["expandReleases"])
+        self.assertNotIn("expandReleases", rak_usb["firmware"][0])
+        self.assertEqual(rak_usb["firmware"][0]["minimumRelease"], "v1.1.0")
         self.assertEqual(
             self.firmware_files_for_device("RAK4631 USB"),
             [
