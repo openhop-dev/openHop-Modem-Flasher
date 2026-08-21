@@ -207,10 +207,10 @@
 			"firmware": [
 				{
 					"role": "openHopModem",
-					"expandReleases": false,
+					"minimumRelease": "v1.1.0",
 					"version": {
 						"main": {
-							"notes": "Staged for the upcoming UnitEng/BQ Voyage Station G3 openHop Modem firmware. The firmware files are not published in the upstream modem repository yet.",
+							"notes": "Current UnitEng/BQ Voyage Station G3 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -664,6 +664,32 @@
 				}
 			],
 			"tooltip": "<img class='device' src='/img/rak_3112.svg'>"
+		},
+		{
+			"maker": "rak",
+			"class": "openhop",
+			"name": "RAK4631 USB",
+			"icon": "/img/rak_4631.svg",
+			"type": "nrf52",
+			"firmware": [
+				{
+					"role": "openHopModem",
+					"minimumRelease": "v1.1.0",
+					"version": {
+						"main": {
+							"notes": "Current RAK4631 USB-only openHop Modem firmware from the upstream firmware repository main branch. This build uses native USB-CDC and does not include RAK13800 Ethernet support.",
+							"files": [
+								{
+									"type": "flash",
+									"name": "rak4631_usb/firmware.zip",
+									"title": "rak4631_usb/firmware.zip"
+								}
+							]
+						}
+					}
+				}
+			],
+			"image": "/img/rak_4631.svg"
 		},
 		{
 			"maker": "rak",

@@ -3,6 +3,7 @@ import { createApp, reactive, ref, nextTick, watch, computed } from "/lib/vue.pr
 import { Dfu } from "/lib/dfu.js";
 import { ESPLoader, Transport, HardReset } from "/lib/esp32.js";
 import { SerialConsole } from '/lib/console.js';
+import { releaseTagAtLeast } from '/lib/version.js';
 
 // Cloudflare serves index.html for deep links. If someone opens an old/in-app
 // route directly, send them back to the flasher home page instead of trying to
@@ -156,6 +157,7 @@ async function addFirmwareReleases() {
       const versions = {};
       for(const release of releases) {
         const ref = release.tag_name;
+        if(!releaseTagAtLeast(ref, firmware.minimumRelease)) continue;
         const version = structuredClone(mainVersion);
         version.ref = ref;
         version.releaseUrl = release.html_url;

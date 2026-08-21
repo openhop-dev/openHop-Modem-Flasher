@@ -34,11 +34,13 @@ Firmware files are loaded directly from tagged upstream release folders. The ver
 - Ikoka Stick
 - LilyGo T3S3
 - LilyGo T-Beam-S3 Supreme
+- RAK4631 USB
 - RAK4631 WisMesh Ethernet
 - RAK WisMesh Base/Rak3112
 - Seeed XIAO ESP32S3 + Wio SX1262
 - Seeed XIAO nRF52 + Wio SX1262
 - Station G2
+- UnitEng/BQ Voyage Station G3
 
 ## Firmware source
 
