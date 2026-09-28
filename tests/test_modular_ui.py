@@ -22,6 +22,17 @@ class ModularUITest(unittest.TestCase):
         self.assertNotIn('Repeater Setup', html)
         self.assertIn('device.image', html)
 
+    def test_home_header_keeps_utilities_together(self):
+        html = source('index.html')
+        match = re.search(r'<nav class="top-nav">(.*?)</nav>', html, re.S)
+        assert match is not None, 'Home header navigation is missing'
+        nav = match.group(1)
+        self.assertIn('aria-label="openHop on GitHub"', nav)
+        self.assertNotIn('<div class="max"></div>', nav)
+        self.assertLess(nav.index('title="Custom Firmware"'), nav.index('title="USB Serial Console"'))
+        self.assertLess(nav.index('title="USB Serial Console"'), nav.index('<span>Docs</span>'))
+        self.assertLess(nav.index('<span>Docs</span>'), nav.index('aria-label="openHop on GitHub"'))
+
     def test_safe_erase_and_release_controls(self):
         html = source('index.html')
         self.assertIn('class="erase-control"', html)
