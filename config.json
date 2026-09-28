@@ -669,7 +669,7 @@
 			"maker": "rak",
 			"class": "openhop",
 			"name": "RAK3401 + RAK13302",
-			"icon": "/img/rak_13302.svg",
+			"icon": "/img/rak_1w.svg",
 			"type": "nrf52",
 			"firmware": [
 				{
@@ -689,7 +689,7 @@
 					}
 				}
 			],
-			"image": "/img/rak_13302.svg"
+			"image": "/img/rak_1w.svg"
 		},
 		{
 			"maker": "rak",

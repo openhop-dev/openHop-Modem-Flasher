@@ -151,8 +151,9 @@ class FirmwareLayoutTest(unittest.TestCase):
 
         self.assertEqual(rak3401["maker"], "rak")
         self.assertEqual(rak3401["type"], "nrf52")
-        self.assertEqual(rak3401["image"], "/img/rak_13302.svg")
-        self.assertTrue((REPO_ROOT / "img" / "rak_13302.svg").is_file())
+        self.assertEqual(rak3401["image"], "/img/rak_1w.svg")
+        self.assertEqual(rak3401["icon"], "/img/rak_1w.svg")
+        self.assertTrue((REPO_ROOT / "img" / "rak_1w.svg").is_file())
         self.assertNotIn("expandReleases", rak3401["firmware"][0])
         self.assertEqual(rak3401["firmware"][0]["minimumRelease"], "v1.2.0")
         self.assertEqual(
