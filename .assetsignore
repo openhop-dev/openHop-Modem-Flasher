@@ -1,5 +1,6 @@
 .assetsignore
 .git
+.gitignore
 .github
 .wrangler
 node_modules
@@ -8,3 +9,10 @@ worker.js
 wrangler.jsonc
 README.md
 LICENSE
+.hermes
+.venv
+__pycache__
+*.pyc
+package.json
+package-lock.json
+scripts
