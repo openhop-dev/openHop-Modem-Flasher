@@ -29,7 +29,9 @@ class ModularUITest(unittest.TestCase):
         nav = match.group(1)
         self.assertIn('aria-label="openHop on GitHub"', nav)
         self.assertNotIn('<div class="max"></div>', nav)
-        self.assertLess(nav.index('title="Custom Firmware"'), nav.index('title="USB Serial Console"'))
+        self.assertNotIn('Custom Firmware', nav)
+        self.assertEqual(html.count('@change="customFirmwareLoad"'), 1)
+        self.assertIn('<strong style="font-size: small;">Custom Firmware</strong>', html)
         self.assertLess(nav.index('title="USB Serial Console"'), nav.index('<span>Docs</span>'))
         self.assertLess(nav.index('<span>Docs</span>'), nav.index('aria-label="openHop on GitHub"'))
 

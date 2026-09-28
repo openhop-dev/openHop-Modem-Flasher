@@ -261,12 +261,6 @@
             <h5 class="small max logo-top">
               <img src="/img/openhop_logo.png" alt="openHop logo"> <span>openHop MeshCore Flasher</span>
             </h5>
-            <button class="transparent" title="Custom Firmware">
-              <i>unknown_document</i>
-              <span class="hide-mobile">Custom Firmware</span>
-              <div class="tooltip bottom end max hide-mobile">Flash custom firmware file from your computer: <b>.bin</b> for esp32, OTA <b>.zip</b> for nRF52</div>
-              <input type="file" accept=".zip,.bin" @change="customFirmwareLoad">
-            </button>
             <button class="transparent" @click="openSerialCon()" title="USB Serial Console">
               <i>terminal</i>
               <span class="hide-mobile">Console</span>
