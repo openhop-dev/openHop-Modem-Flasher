@@ -20,6 +20,11 @@ body:has([v-cloak]):after {
     l20-1 0.8s infinite linear alternate,
     l20-2 1.6s infinite linear;
 }
+
+button {
+  min-inline-size: unset !important;
+}
+
 @keyframes l20-1{
    0%    {clip-path: polygon(50% 50%,0       0,  50%   0%,  50%    0%, 50%    0%, 50%    0%, 50%    0% )}
    12.5% {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100%   0%, 100%   0%, 100%   0% )}
@@ -38,6 +43,8 @@ body:has([v-cloak]):after {
 
 #app {
   flex-grow: 1;
+  /* flex item: without this it never shrinks below its widest content, so phones zoomed out */
+  min-width: 0;
 }
 
 #app h5.logo-top img {
@@ -54,6 +61,33 @@ body:has([v-cloak]):after {
 
 #app select {
   cursor: pointer
+}
+/* tooltips are children of their button, so hovering one kept it open over the neighbouring buttons;
+   only tooltips with links need to stay reachable */
+#app .tooltip:not(:has(a)) {
+  pointer-events: none;
+}
+/* top/bottom tooltips aligned to the button's start or end edge instead of centered,
+   so buttons near the screen edge don't push them off screen */
+#app .tooltip:is(.start, .end) {
+  transform: translateY(-100%) scale(0.9);
+}
+#app :hover > .tooltip:is(.start, .end) {
+  transform: translateY(-100%) scale(1);
+}
+#app .tooltip.bottom:is(.start, .end) {
+  transform: translateY(100%) scale(0.9);
+}
+#app :hover > .tooltip.bottom:is(.start, .end) {
+  transform: translateY(100%) scale(1);
+}
+#app .tooltip.start {
+  left: 0;
+  right: auto;
+}
+#app .tooltip.end {
+  left: auto;
+  right: 0;
 }
 #app .tooltip:has(>.device) {
   background: #f0f0f055;
@@ -78,6 +112,7 @@ body:has([v-cloak]):after {
 }
 #app pre.term {
   font-family: monospace;
+  overflow-wrap: anywhere;
 }
 #app .overlay {
   display: flex !important;
@@ -109,7 +144,8 @@ body:has([v-cloak]):after {
 }
 #app .pre {
   white-space-collapse: preserve;
-  min-width: 300px;
+  min-width: min(300px, 100%);
+  overflow-wrap: anywhere;
 }
 #app a {
   text-decoration: underline;
@@ -182,6 +218,19 @@ body:has([v-cloak]):after {
   height: 20px;
 }
 
+#app .welcome-banner {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  padding: 0.5rem 1rem;
+}
+
+#app .welcome-banner span {
+  margin: auto 0;
+}
+
 .flash-container {
   padding-bottom: 150px;
 }
@@ -192,4 +241,65 @@ body:has([v-cloak]):after {
 
 .text-wrap {
   text-wrap: auto;
+}
+
+/* BeerCSS navs and lists are nowrap and their flex items don't shrink,
+   so long device/firmware names pushed small phones into horizontal scrolling */
+#app header nav:not(.top-nav) {
+  white-space: normal;
+}
+#app header nav:not(.top-nav) > :is(a, span) {
+  flex-shrink: 1;
+}
+#app .list > li > .max {
+  min-width: 0;
+}
+#app .list > li > .max > h6 {
+  white-space: normal;
+}
+#app .list > li > button {
+  min-width: 0;
+  block-size: auto;
+  min-block-size: 2.5rem;
+}
+#app .list > li > button > span {
+  white-space: normal;
+  text-align: start;
+}
+/* logo + three icon buttons must fit 320px phones */
+@media screen and (width <= 540px) {
+  #app nav.top-nav {
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 0.25rem;
+  }
+  #app header nav {
+    gap: 0.5rem;
+  }
+  #app nav.top-nav .logo-top {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+  #app nav.top-nav > button {
+    padding-inline: 0.5rem;
+  }
+}
+@media screen and (width <= 400px) {
+  #app nav.top-nav > i {
+    display: none;
+  }
+}
+
+@media screen and (width <= 540px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  .tooltip {
+    display: none !important;
+  }
+}
+#app li.firmware-class {
+  background-color: var(--surface-container);
+  padding: 0.25rem 1rem;
+  font-weight: bold;
 }

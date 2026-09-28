@@ -24,8 +24,8 @@
   <meta name="twitter:description" content="Flash openHop Modem firmware onto supported MeshCore-compatible ESP32 and nRF52 devices directly from your browser.">
   <meta name="twitter:image" content="/img/openhop_logo.png">
   <link href="/css/beer.css" rel="stylesheet">
-  <link href="/css/flasher.css?v=openhop12" rel="stylesheet">
-  <script type="module" src="/flasher.js?v=openhop12"></script>
+  <link href="/css/flasher.css?v=openhop14" rel="stylesheet">
+  <script type="module" src="/flasher.js?v=openhop14"></script>
 </head>
 
 <body class="dark">
@@ -34,15 +34,15 @@
       <i v-if="snackbar.icon">{{ snackbar.icon }}</i>
       <span v-html="snackbar.text"></span>
     </div>
-    <div class="flash-container" data-iframe-height>
+    <div class="flash-container">
       <div v-if="flashing.active">
         <header>
           <nav>
             <i>developer_board</i>
             <span class="small">{{ selected.device.name }}</span>
             <i>chevron_right</i>
-            <i>{{ selected.firmware.icon || config.role[selected.firmware.role].icon }}</i>
-            <span class="small strong">{{ selected.firmware.title || config.role[selected.firmware.role].title }}</span>
+            <i>{{ fwValue(selected.firmware, 'icon') }}</i>
+            <span class="small strong">{{ fwValue(selected.firmware, 'title') }}</span>
             <div class="max"></div>
             <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
               <i>article</i>
@@ -58,12 +58,12 @@
               <p><span>{{ flashing.error }}</span></p>
             </div>
           </div>
-          <nav class="small-margin">
-            <button @click="retry">
+          <nav class="small-margin wrap">
+            <button @click="retry" :disabled="flashing.busy">
               <i>bolt</i>
               <span>Retry</span>
             </button>
-            <button @click="close">
+            <button @click="close" :disabled="flashing.busy">
               <i>arrow_back</i>
               <span>Close</span>
             </button>
@@ -72,22 +72,22 @@
         <article v-else>
           <div class="row">
             <div class="max" v-if="flashing.percent < 100">
-              <h6><progress class="circle small"></progress> Flashing...</h6>
+              <h6><progress class="circle small"></progress> {{ flashing.phase === 'selecting' ? 'Select a device...' : flashing.phase === 'downloading' ? 'Downloading firmware...' : 'Flashing...' }}</h6>
               <p>Please do not disconnect the device</p>
             </div>
             <div class="max" v-else>
               <h6>Flashing complete!</h6>
-              <nav class="small-margin">
+              <nav class="small-margin wrap">
                 <button @click="openSerialGUI()" v-if="selected.firmware.role === 'roomServer' || selected.firmware.role === 'repeater'">
                   <i>manufacturing</i>
                   <span>Configure via USB</span>
-                  <div class="tooltip left max">Manage Modem devices</div>
+                  <div class="tooltip bottom start max">Open GUI to configure Repeaters and Room servers via USB serial</div>
                 </button>
-                <button @click="close">
+                <button @click="close" :disabled="flashing.busy">
                   <i>arrow_back</i>
                   <span>Close</span>
                 </button>
-                <button @click="retry">
+                <button @click="retry" :disabled="flashing.busy">
                   <i>bolt</i>
                   <span>Flash Again</span>
                 </button>
@@ -119,15 +119,15 @@
           <article class="no-margin">
             <ul class="list">
               <li>
-                <i>{{ getRoleFwValue(selected.firmware, 'icon') }}</i>&nbsp;
+                <i>{{ fwValue(selected.firmware, 'icon') }}</i>&nbsp;
                 <div class="max">
-                  <h6 class="small strong">{{ getRoleFwValue(selected.firmware, 'title') }} {{ getRoleFwValue(selected.firmware, 'subTitle') }}</h6>
-                  <span class="text-wrap">{{ getRoleFwValue(selected.firmware, 'tooltip') }}</span>
+                  <h6 class="small strong">{{ fwValue(selected.firmware, 'title') }} {{ fwValue(selected.firmware, 'subTitle') }}</h6>
+                  <span class="text-wrap">{{ fwValue(selected.firmware, 'tooltip') }}</span>
                 </div>
               </li>
             </ul>
           </article>
-          <div v-if="getNotice(selected)" v-html="getNotice(selected)"></div>
+          <div v-if="notice" v-html="notice"></div>
           <nav class="version">
             <div class="field label suffix border small">
               <select v-model="selected.version">
@@ -138,15 +138,16 @@
               <label>Version</label>
               <i>arrow_drop_down</i>
             </div>
-            <div class="max pre" v-if="getSelFwValue('notes')">
+            <div class="max pre" v-if="currentVersion?.notes">
               <b>Changelog:</b><br>
-              <span v-html="formatChangeLog(getSelFwValue('notes'))"></span>
-              <br>
-              <a v-if="getSelFwValue('releaseUrl')" :href="getSelFwValue('releaseUrl')" target="_blank" rel="noopener noreferrer">View release on GitHub</a>
+              <read-more max-height="300px">
+                <span>{{ currentVersion.notes }}</span>
+              </read-more>
+              <a v-if="currentVersion.releaseUrl" :href="currentVersion.releaseUrl" target="_blank" rel="noopener noreferrer">View release on GitHub</a>
             </div>
           </nav>
         </header>
-        <ul class="list border" v-if="selected.device.type === 'esp32' && firmwareHasFlashWipe()">
+        <ul class="list border" v-if="selected.device.type === 'esp32' && hasFlashWipe">
           <li>
             <label class="erase-control">
               <input type="checkbox" v-model="selected.wipe">
@@ -162,40 +163,38 @@
         </ul>
         <template v-if="selected.device.type === 'nrf52'">
           <div class="small-space"></div>
-          <button @click="dfuMode" :disabled="selected.nrfEraserFlashing || !flashing.supported">
-            <i>{{ flashing.dfuComplete ? 'check' : 'code' }}</i>
-            <span>{{ flashing.dfuComplete ? 'DFU mode active' : 'Enter DFU mode' }}</span>
-            <div class="tooltip right max" v-if="flashing.supported">
-              Enter DFU mode - this mode enables you to flash your firmware.
-              If you did not trigger the DFU mode manually, please click this button.
-            </div>
-            <div class="tooltip right max" v-else>
-              Your browser doesn't support Web Serial API. Please use Chrome or Edge on Desktop
-            </div>
-          </button>
-          <button v-if="selected.device.erase" @click="nrfErase" :disabled="!flashing.supported || selected.nrfEraserFlashing || selected.nrfEraserFlashingPercent > 0">
-            <i v-if="selected.nrfEraserFlashingPercent === 100">check</i>
-            <progress v-else-if="selected.nrfEraserFlashing" class="circle small"></progress>
-            <i v-else>delete_forever</i>
+          <nav class="small-margin wrap">
+            <button @click="dfuMode" :disabled="eraser.active || !flashing.supported">
+              <i>{{ flashing.dfuComplete ? 'check' : 'code' }}</i>
+              <span>{{ flashing.dfuComplete ? 'DFU mode active' : 'Enter DFU mode' }}</span>
+              <div class="tooltip start max" v-if="flashing.supported">
+                Enter DFU mode - this mode enables you to flash your firmware.
+                If you did not trigger the DFU mode manually, please click this button.
+              </div>
+              <div class="tooltip start max" v-else>{{ WEB_SERIAL_UNSUPPORTED }}</div>
+            </button>
+            <button v-if="selected.device.erase" @click="nrfErase" :disabled="!flashing.supported || eraser.active || eraser.percent > 0">
+              <i v-if="eraser.percent === 100">check</i>
+              <progress v-else-if="eraser.active" class="circle small"></progress>
+              <i v-else>delete_forever</i>
 
-            <span v-if="selected.nrfEraserFlashingPercent === 100">Flash Erased!</span>
-            <span v-if="selected.nrfEraserFlashingPercent > 0">Flashing erase firmware: {{selected.nrfEraserFlashingPercent}}%</span>
-            <span v-else-if="selected.nrfEraserFlashing">Connecting...</span>
-            <span v-else>Erase Flash</span>
+              <span v-if="eraser.percent === 100">Flash Erased!</span>
+              <span v-else-if="eraser.percent > 0">Flashing erase firmware: {{ eraser.percent }}%</span>
+              <span v-else-if="eraser.active">Connecting...</span>
+              <span v-else>Erase Flash</span>
 
-            <div class="tooltip right max" v-if="flashing.supported">
-              Flash special firmware that will format your flash and erase all user data.<br>
-              Click <b>Enter DFU mode</b> before erasing, if you did not trigger the DFU mode manually
-            </div>
-            <div class="tooltip right max" v-else>
-              Your browser doesn't support Web Serial API. Please use Chrome or Edge on Desktop
-            </div>
-          </button>
+              <div class="tooltip start max" v-if="flashing.supported">
+                Flash special firmware that will format your flash and erase all user data.<br>
+                Click <b>Enter DFU mode</b> before erasing, if you did not trigger the DFU mode manually
+              </div>
+              <div class="tooltip start max" v-else>{{ WEB_SERIAL_UNSUPPORTED }}</div>
+            </button>
+          </nav>
         </template>
         <div class="medium-space"></div>
-        <nav class="small-margin">
-        <template v-if="canFlash(selected.device)">
-          <button @click="flashDevice" :disabled="selected.nrfEraserFlashing || !flashing.supported">
+        <nav class="small-margin wrap">
+        <template v-if="selected.device.type !== 'noflash'">
+          <button @click="flashDevice" :disabled="eraser.active || !flashing.supported">
             <i>bolt</i>
             <span>Flash!</span>
             <div class="tooltip right max" v-if="flashing.supported">
@@ -204,24 +203,16 @@
                 If you did not trigger DFU mode manually, use the <b>Enter DFU mode</b> before flashing
               </span>
             </div>
-            <div class="tooltip right max" v-else>
-              Your browser doesn't support Web Serial API. Please use Chrome or Edge on Desktop
-            </div>
+            <div class="tooltip right max" v-else>{{ WEB_SERIAL_UNSUPPORTED }}</div>
           </button>
           <div class="max"></div>
         </template>
-        <button data-ui="#down" class="active" v-if="!getSelFwValue('customFile')">
+        <button data-ui="#down" class="active" v-if="downloads.length">
           <i>download</i>
           <span>Download</span><i>arrow_drop_down</i>
           <menu class="left no-wrap" id="down" data-ui="#down">
-            <li v-for="file in getSelFwValue('files')">
-              <a data-ui="menu-selector" :href="getFirmwarePath(file)" download>{{ file.title }}</a>
-            </li>
-            <li v-if="selected.device.type === 'nrf52' && selected.device.erase">
-              <a data-ui="menu-selector" :href="`${config.staticPath}/${selected.device.erase.replace('.zip', '.uf2')}`" download>{{ selected.device.erase.replace('.zip', '.uf2') }}</a>
-            </li>
-            <li v-if="selected.device.type === 'nrf52' && selected.device.bootloader">
-              <a data-ui="menu-selector" :href="`${config.staticPath}/${selected.device.bootloader}`" download>{{ selected.device.bootloader }}</a>
+            <li v-for="file in downloads">
+              <a data-ui="menu-selector" :href="file.href" download>{{ file.title }}</a>
             </li>
           </menu>
           <div class="tooltip left max">Download a copy of the firmware files for use with other flashers</div>
@@ -245,29 +236,35 @@
             <h6 class="small max">Choose role</h6>
           </nav>
         </header>
-        <ul class="list border">
-          <template v-for="firmware in selected.device.firmware">
-            <li v-if="firmwareHasData(firmware)" :class="getRoleFwValue(firmware, 'class')">
-              <button class="transparent" @click="selected.firmware = firmware">
-                <i>{{ getRoleFwValue(firmware, 'icon') }}</i>
-                <span>{{ getRoleFwValue(firmware, 'title') }} {{ getRoleFwValue(firmware, 'subTitle') }}</span>
-                <div class="tooltip right max" v-if="getRoleFwValue(firmware, 'tooltip')" v-html="getRoleFwValue(firmware, 'tooltip')"></div>
+        <template v-for="(fwGroup, fwClass) in deviceFirmwareByClass">
+          <ul class="list border">
+            <li class="firmware-class" v-if="firmwareClasses[fwClass]">
+              <label>
+                {{ firmwareClasses[fwClass].title }}
+                <div class="tooltip right max" v-html="firmwareClasses[fwClass].tooltip"></div>
+              </label>
+            </li>
+            <li v-for="firmware in fwGroup" :class="fwClass">
+              <button class="transparent" @click="selectFirmware(firmware)">
+                <i>{{ fwValue(firmware, 'icon') }}</i>
+                <span>{{ fwValue(firmware, 'title') }} {{ fwValue(firmware, 'subTitle') }}</span>
+                <div class="tooltip right max" v-if="fwValue(firmware, 'tooltip')" v-html="fwValue(firmware, 'tooltip')"></div>
               </button>
             </li>
-          </template>
-        </ul>
+          </ul>
+        </template>
       </div>
       <div v-else>
-        <header>
-          <nav>
+      <header>
+          <nav class="top-nav">
             <i>bolt</i>
             <h5 class="small max logo-top">
               <img src="/img/openhop_logo.png" alt="openHop logo"> <span>openHop MeshCore Flasher</span>
             </h5>
-            <button class="transparent" @click="openSerialCon()">
+            <button class="transparent" @click="openSerialCon()" title="USB Serial Console">
               <i>terminal</i>
-              <span>Console</span>
-              <div class="tooltip left max">Manage Modem devices</div>
+              <span class="hide-mobile">Console</span>
+              <div class="tooltip bottom end max hide-mobile">Manage Modem devices</div>
             </button>
             <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
               <i>article</i>
@@ -291,51 +288,21 @@
           <label>Filter</label>
         </div>
         <ul class="list border">
-          <li v-for="(deviceGroup, type) in devices">
-            <details open>
-              <summary style="background-color: var(--surface-container)">
-                <div>
-                  <strong v-if="type === 'openhop'">openHop Modem Firmware</strong>
-                  <strong v-else-if="type === 'ripple'">Ripple Firmware</strong>
-                  <strong v-else-if="type === 'meshos'">MeshOS Firmware</strong>
-                  <strong v-else-if="type === 'community'">Other Firmwares</strong>
-                  <div class="tooltip right max">
-                    <template v-if="type === 'openhop'">
-                      openHop Modem firmware provided by <a class="inverse-link" target="_blank" href="https://github.com/openhop-dev/openhop_modem">openHop modem repository</a>
-                    </template>
-                    <template v-else-if="type === 'ripple'">
-                      Freemium firmware provided by <a class="inverse-link" target="_blank" href="https://buymeacoffee.com/ripplebiz">Ripple Radios</a>
-                    </template>
-                    <template v-else-if="type === 'meshos'">
-                      Freemium firmware provided by Andy Kirby
-                    </template>
-                    <template v-else-if="type === 'community'">
-                      Open Source <a class="inverse-link" target="_blank" href="https://github.com/meshcore-dev/MeshCore">Community firmware</a>
-                    </template>
-                  </div>
-                </div>
-              </summary>
-              <ul class="list border">
-                <li v-for="device in deviceGroup">
-                  <template v-if="device.firmware.length > 0">
-                    <button class="device-select transparent" @click="selected.device = device">
-                      <img class="icon" :title="device.type" :src="`/img/${device.type}.svg`" v-if="device.type !== 'noflash'">
-                      <i v-else>developer_board</i>
-                      <span>{{ device.name }}</span>
-                      <div class="tooltip right max" v-if="device.image || device.tooltip">
-                        <img class="device" :src="device.image" v-if="device.image">
-                        <template v-if="device.tooltip">
-                          <span v-html="device.tooltip"></span>
-                        </template>
-                      </div>
-                      <div class="max"></div>
-                    </button>
-                    <div class="max"></div>
-                    <img class="icon" :src="device.icon" v-if="device.icon" >
-                  </template>
-                </li>
-              </ul>
-            </details>
+          <li class="firmware-class"><strong>openHop Modem Firmware</strong></li>
+          <li v-for="device in devices">
+            <button class="device-select transparent" @click="selected.device = device"
+                    @mouseenter="hoveredDevice = device" @focus="hoveredDevice = device">
+              <img class="icon" :title="device.type" :src="`/img/${device.type}.svg`" v-if="device.type !== 'noflash'">
+              <i v-else>developer_board</i>
+              <span>{{ device.name }}</span>
+              <div class="tooltip right max" v-if="(device.image || device.tooltip) && hoveredDevice === device">
+                <img class="device" :src="device.image" v-if="device.image">
+                <span v-if="device.tooltip" v-html="device.tooltip"></span>
+              </div>
+              <div class="max"></div>
+            </button>
+            <div class="max hide-mobile"></div>
+            <img class="icon hide-mobile" :src="device.icon" v-if="device.icon" >
           </li>
           <li>
             <label>
@@ -359,11 +326,12 @@
         <nav>
           <button class="circle transparent" @click="closeSerialCon()"><i>arrow_back</i></button>
           <h6 class="small max">Serial Console</h6>
-          <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
-            <i>article</i>
-            <span>Docs</span>
-            <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
-          </a>
+            <div class="max"></div>
+            <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
+              <i>article</i>
+              <span>Docs</span>
+              <div class="tooltip left max">Open the openHop Modem flasher documentation</div>
+            </a>
         </nav>
       </header>
       <pre class="console" ref="consoleWindow" tabindex="0" @mouseup="consoleMouseUp">
@@ -375,6 +343,5 @@
       </pre>
     </div>
   </div>
-  <script src="/lib/iframeResizer.contentWindow.min.js"></script>
 </body>
 </html>
