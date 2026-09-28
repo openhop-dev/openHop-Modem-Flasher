@@ -17,6 +17,9 @@ const stubs = { ...hardwareStubs,
 };
 delete stubs['js/util.js'];
 const { createSetup } = await browserModule('js/app.js', stubs);
+const { expandFirmwareReleases } = await browserModule('js/catalog.js', stubs);
+globalThis.fetch = async () => ({ok:true, json:async () => [{tag_name:'v1.1.0'}, {tag_name:'v1.2.0'}]});
+await expandFirmwareReleases(config);
 
 function stationApp(wipe = false) {
   const app = createSetup(structuredClone(config))();
@@ -228,14 +231,14 @@ test('backend failure unlocks only after settlement and retry releases the exact
   assert.equal(app.flashing.percent, 0);
 });
 
-test('selection prefers main even after tags and defaults full flash for configured ESP32', () => {
+test('selection defaults newest release and full flash for configured ESP32', () => {
   const app = createSetup(structuredClone(config))();
   const device = app.config.device.find(d => d.name === 'EtherMesh-1W');
   const firmware = device.firmware[0];
-  firmware.version = { 'v1.2.0': structuredClone(firmware.version.main), main: firmware.version.main };
+  firmware.version = { 'v1.1.0': firmware.version['v1.1.0'], 'v1.2.0': firmware.version['v1.2.0'] };
   app.selected.device = device;
   app.selectFirmware(firmware);
-  assert.equal(app.selected.version, 'main');
+  assert.equal(app.selected.version, 'v1.2.0');
   assert.equal(app.selected.wipe, true);
   app.selected.device = app.config.device.find(d => d.type === 'nrf52');
   app.selectFirmware(app.selected.device.firmware[0]);
@@ -253,7 +256,8 @@ test('application downloads selected tagged multi-image plan and sends every add
   const app = createSetup(structuredClone(config))();
   app.selected.device = app.config.device.find(d => d.name === 'UnitEng/BQ Voyage Station G3');
   app.selectFirmware(app.selected.device.firmware[0]);
-  app.selected.firmware.version.main.ref = 'v1.2.0';
+  assert.equal(app.selected.version, 'v1.2.0');
+  assert.ok(!('main' in app.selected.firmware.version));
   app.selected.wipe = true;
   const fetched = [];
   globalThis.fetch = async url => { fetched.push(url); return {ok:true, blob:async () => new Blob(['firmware'])}; };
@@ -265,8 +269,9 @@ test('application downloads selected tagged multi-image plan and sends every add
 });
 
 
-test('custom merged BIN, update BIN and ZIP clear stale wipe state and retain their Blob', async () => {
-  const app = createSetup(structuredClone(config))();
+test('custom merged BIN, update BIN and ZIP work with an empty release catalogue and clear stale wipe state', async () => {
+  const app = createSetup({...structuredClone(config), device:[]})();
+  globalThis.fetch = async () => { throw new Error('custom uploads must not download firmware'); };
   const alerts = [];
   globalThis.alert = message => alerts.push(message);
   for(const [name, type, wipe, address] of [
@@ -278,6 +283,8 @@ test('custom merged BIN, update BIN and ZIP clear stale wipe state and retain th
     assert.equal(app.selected.device.type, type);
     assert.equal(app.selected.wipe, wipe);
     assert.equal(app.currentVersion.value.files[0].file, file);
+    assert.equal(app.selected.version, name);
+    assert.deepEqual(app.downloads.value, []);
     if(type === 'esp32') {
       await app.flashDevice();
       assert.equal(globalThis.writtenFlash.fileArray[0].address, address);

@@ -1,7 +1,7 @@
 // Device/firmware catalog: static config (config*.json) merged with GitHub releases served by /releases
-import { configName } from './site.js?v=openhop13';
-import { fetchJson } from './util.js?v=openhop13';
-import { releaseTagAtLeast } from '/lib/version.js?v=openhop13';
+import { configName } from './site.js?v=openhop14';
+import { fetchJson } from './util.js?v=openhop14';
+import { releaseTagAtLeast } from '/lib/version.js?v=openhop14';
 
 // Display order and headings of firmware groups on the "choose role" screen
 export const firmwareClasses = {
@@ -58,7 +58,8 @@ export async function loadCatalog() {
 
   await expandFirmwareReleases(config);
 
-  config.device = config.device.filter(device => device.firmware.some(hasVersions));
+  for(const device of config.device) device.firmware = device.firmware.filter(hasVersions);
+  config.device = config.device.filter(device => device.firmware.length > 0);
 
   return config;
 }
@@ -91,13 +92,18 @@ export function firmwareUrl(config, file, version) {
   return `${base}/${file.name}`;
 }
 
+const isStableTag = tag => /^v\d+\.\d+\.\d+$/.test(tag);
+const newestTagFirst = (a, b) => a === b ? 0 : releaseTagAtLeast(a, b) ? -1 : 1;
+
 export async function getFirmwareReleases(config) {
   const source = config.firmwareReleases;
   if(!source?.api || !source.tagPattern) return [];
   const pattern = new RegExp(source.tagPattern);
-  const normalize = releases => releases
-    .filter(r => !r.draft && !r.prerelease && pattern.test(r.tag_name))
-    .map(r => ({ tag_name: r.tag_name, html_url: `${source.releaseBaseUrl}${r.tag_name}` }));
+  const normalize = releases => [...new Set(releases
+    .filter(r => r && !r.draft && !r.prerelease && isStableTag(r.tag_name) && pattern.test(r.tag_name))
+    .map(r => r.tag_name))]
+    .sort(newestTagFirst)
+    .map(tag_name => ({ tag_name, html_url: `${source.releaseBaseUrl}${tag_name}` }));
   const key = `firmware-releases:${source.api}`;
   try {
     const cached = JSON.parse(localStorage.getItem(key) || 'null');
@@ -119,13 +125,16 @@ export async function expandFirmwareReleases(config) {
   const releases = await getFirmwareReleases(config);
   for(const device of config.device) {
     for(const firmware of device.firmware) {
+      // main describes the layout only; never retain it as a selectable version.
       const main = firmware.version?.main;
-      if(!main || firmware.expandReleases === false) continue;
-      const versions = { main };
+      const versions = {};
       for(const release of releases) {
         if(!releaseTagAtLeast(release.tag_name, firmware.minimumRelease)) continue;
+        const template = firmware.version?.[release.tag_name]
+          ?? (firmware.expandReleases !== false ? main : null);
+        if(!template?.files?.length) continue;
         versions[release.tag_name] = {
-          ...structuredClone(main), ref: release.tag_name, releaseUrl: release.html_url,
+          ...structuredClone(template), ref: release.tag_name, releaseUrl: release.html_url,
           notes: `Release ${release.tag_name}. Open the release page for the full changelog.`,
         };
       }
@@ -135,8 +144,10 @@ export async function expandFirmwareReleases(config) {
 }
 
 export function defaultFirmwareVersion(firmware) {
-  const versions = Object.keys(firmware?.version ?? {}).filter(v => firmware.version[v].files.length);
-  return versions.includes('main') ? 'main' : versions[0] ?? null;
+  const versions = Object.keys(firmware?.version ?? {})
+    .filter(v => isStableTag(v) && firmware.version[v].files?.length)
+    .sort(newestTagFirst);
+  return versions[0] ?? null;
 }
 
 export const compareDevices = (a, b) => ((a.order ?? 1000) - (b.order ?? 1000))

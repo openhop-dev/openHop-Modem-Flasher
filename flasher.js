@@ -1,8 +1,8 @@
-import "/lib/beer.min.js?v=openhop13";
-import { createApp } from "/lib/vue.prod.min.js?v=openhop13";
-import ReadMore from '/lib/overflow.vue.js?v=openhop13';
-import { createSetup } from '/js/app.js?v=openhop13';
-import { loadCatalog } from '/js/catalog.js?v=openhop13';
+import "/lib/beer.min.js?v=openhop14";
+import { createApp } from "/lib/vue.prod.min.js?v=openhop14";
+import ReadMore from '/lib/overflow.vue.js?v=openhop14';
+import { createSetup } from '/js/app.js?v=openhop14';
+import { loadCatalog } from '/js/catalog.js?v=openhop14';
 
 // Keep the fork's startup semantics: only in-app navigation restores selections.
 if(location.pathname !== '/') {

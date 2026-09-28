@@ -10,7 +10,7 @@ User documentation is available at:
 
 https://docs.openhop.dev/projects/openhop-modem/flasher/
 
-The default firmware source is `main`. Stable tagged versions are discovered via `/api/firmware-releases` and link to their GitHub release pages. The catalogue excludes releases before v1.0.1 (which lack required P4 factory images); per-firmware `minimumRelease` and `expandReleases` further restrict availability. Discovery caches successful results in the browser for 15 minutes and uses configured fallback tags when the service is unavailable.
+Only published stable releases are selectable, with the newest eligible semantic version selected by default. Releases are discovered via `/api/firmware-releases` and link to their GitHub release pages. Live, cached and fallback lists are filtered, deduplicated and sorted newest first. The catalogue excludes releases before v1.0.1 (which lack required P4 factory images); per-firmware `minimumRelease` further restricts availability. `main` is an internal file-layout template, never a selectable branch build. `expandReleases: false` disables template expansion and permits only explicitly configured versions present in the release list. Roles and devices without eligible files are hidden. Discovery caches successful results in the browser for 15 minutes and uses configured fallback tags when the service is unavailable; an empty successful release list stays empty. Custom BIN/ZIP uploads remain independent of catalogue release filtering.
 
 ## What it does
 
@@ -78,7 +78,7 @@ for file in js/*.js lib/dfu.js lib/overflow.vue.js lib/polyfill/serial.js; do no
 git diff --check
 ```
 
-Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop13` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
+Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop14` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
 
 For a static UI preview, run `python3 -m http.server 8000 --bind 127.0.0.1`. This server does **not** implement `/api/firmware-releases`: expect fallback versions and a handled HTTP 404. Use a separately authorized local Worker preview to exercise the real proxy. Firmware binaries still require browser CORS access to raw GitHub. Do not click Flash or Enter DFU mode during ordinary UI validation.
 

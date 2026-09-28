@@ -12,7 +12,7 @@
 		"openHopModem": {
 			"icon": "cell_tower",
 			"title": "openHop Modem",
-			"tooltip": "Flash the current openHop Modem firmware from the openHop modem repository folders."
+			"tooltip": "Flash a published stable openHop Modem release from the openHop modem repository."
 		}
 	},
 	"notice": {},
@@ -56,7 +56,7 @@
 					"slug": "ethermesh",
 					"version": {
 						"main": {
-							"notes": "Current EtherMesh-1W firmware from the openHop modem repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
+							"notes": "Release EtherMesh-1W firmware from the openHop modem repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -89,7 +89,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current MeshSmith Photon-1W XIAO ESP32-C6 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release MeshSmith Photon-1W XIAO ESP32-C6 openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -134,7 +134,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -165,7 +165,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current UnitEng Station G2 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release UnitEng Station G2 openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -210,7 +210,7 @@
 					"minimumRelease": "v1.1.0",
 					"version": {
 						"main": {
-							"notes": "Current UnitEng/BQ Voyage Station G3 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release UnitEng/BQ Voyage Station G3 openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -254,7 +254,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch.",
+							"notes": "Release firmware from the upstream firmware repository release tag.",
 							"files": [
 								{
 									"type": "flash",
@@ -279,7 +279,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -323,7 +323,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current Heltec Tracker V2 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release Heltec Tracker V2 openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -367,7 +367,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current Heltec V4 openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release Heltec V4 openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -411,7 +411,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current Heltec V4.2 GC1109 PA/FEM openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release Heltec V4.2 GC1109 PA/FEM openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -455,7 +455,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current Heltec V4.3 KCT8103L PA/FEM openHop Modem firmware from the upstream firmware repository main branch, with FEM RX LNA bypass enabled for lower noise floor. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release Heltec V4.3 KCT8103L PA/FEM openHop Modem firmware from the upstream firmware repository release tag, with FEM RX LNA bypass enabled for lower noise floor. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -499,7 +499,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -543,7 +543,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -588,7 +588,7 @@
 					"expandReleases": false,
 					"version": {
 						"main": {
-							"notes": "Current LilyGo T-Beam-S3 Supreme openHop Modem firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release LilyGo T-Beam-S3 Supreme openHop Modem firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -632,7 +632,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -677,7 +677,7 @@
 					"minimumRelease": "v1.2.0",
 					"version": {
 						"main": {
-							"notes": "Current RAK3401 + RAK13302 openHop Modem firmware from the upstream firmware repository main branch.",
+							"notes": "Release RAK3401 + RAK13302 openHop Modem firmware from the upstream firmware repository release tag.",
 							"files": [
 								{
 									"type": "flash",
@@ -703,7 +703,7 @@
 					"minimumRelease": "v1.1.0",
 					"version": {
 						"main": {
-							"notes": "Current RAK4631 USB-only openHop Modem firmware from the upstream firmware repository main branch. This build uses native USB-CDC and does not include RAK13800 Ethernet support.",
+							"notes": "Release RAK4631 USB-only openHop Modem firmware from the upstream firmware repository release tag. This build uses native USB-CDC and does not include RAK13800 Ethernet support.",
 							"files": [
 								{
 									"type": "flash",
@@ -728,7 +728,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current RAK4631 WisMesh Ethernet openHop Modem firmware from the upstream firmware repository main branch.",
+							"notes": "Release RAK4631 WisMesh Ethernet openHop Modem firmware from the upstream firmware repository release tag.",
 							"files": [
 								{
 									"type": "flash",
@@ -753,7 +753,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch.",
+							"notes": "Release firmware from the upstream firmware repository release tag.",
 							"files": [
 								{
 									"type": "flash",
@@ -778,7 +778,7 @@
 					"role": "openHopModem",
 					"version": {
 						"main": {
-							"notes": "Current firmware from the upstream firmware repository main branch. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
+							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash bootloader + partitions + firmware.",
 							"files": [
 								{
 									"type": "flash-update",
