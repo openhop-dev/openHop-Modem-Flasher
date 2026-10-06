@@ -87,10 +87,98 @@ for(const source of ['feed', 'cache', 'fallback']) {
     const loaded = await catalog.loadCatalog();
     for(const device of loaded.device) {
       const fw = device.firmware[0];
-      assert.deepEqual(Object.keys(fw.version), ['v1.10.0', 'v1.2.0']);
+      assert.deepEqual(Object.keys(fw.version), device.slug === 'lilygo-tbeam-1w' ? ['v1.10.0'] : ['v1.10.0', 'v1.2.0']);
       assert.equal(catalog.defaultFirmwareVersion(fw), 'v1.10.0');
       for(const version of Object.values(fw.version)) {
         for(const file of version.files) assert.ok(catalog.firmwareUrl(loaded, file, version).includes(`/${version.ref}/firmware/`));
+      }
+    }
+  });
+}
+
+for(const source of ['feed', 'cache', 'fallback']) {
+  for(const tags of [
+    ['main', 'dev', 'v1.3.0', 'v1.4.0-rc1'],
+    ['v1.3.0', 'v1.4.0'],
+    ['v1.4.0', 'main', 'v1.10.0', 'v1.3.0', 'v1.5.0', 'v1.10.0', 'v1.11.0-rc1'],
+    [],
+  ]) {
+    test(`T-Beam 1W ${source} gates releases for ${JSON.stringify(tags)}`, async t => {
+      cache.clear();
+      t.mock.method(console, 'warn', () => {});
+      const input = structuredClone(baseline);
+      assert.ok(input.device.some(d => d.slug === 'lilygo-tbeam-1w'), 'distinct T-Beam 1W must be configured');
+      input.firmwareReleases.fallbackTags = tags;
+      const discovered = tags.map(tag_name => ({tag_name}));
+      if(source === 'cache') cache.set(`firmware-releases:${input.firmwareReleases.api}`, JSON.stringify({fetchedAt:Date.now(), releases:discovered}));
+      let releaseRequests = 0;
+      globalThis.fetch = async url => {
+        if(url === '/config.json') return {ok:true, json:async () => structuredClone(input)};
+        releaseRequests++;
+        return {ok:source !== 'fallback', status:502, json:async () => structuredClone(discovered)};
+      };
+      const loaded = await catalog.loadCatalog();
+      assert.equal(releaseRequests, source === 'cache' ? 0 : 1);
+      const device = loaded.device.find(d => d.slug === 'lilygo-tbeam-1w');
+      const expected = tags.includes('v1.10.0') ? ['v1.10.0', 'v1.5.0', 'v1.4.0'] : tags.includes('v1.4.0') ? ['v1.4.0'] : [];
+      if(!expected.length) {
+        assert.equal(device, undefined, 'no eligible release must hide device, never restore main');
+        return;
+      }
+      assert.deepEqual(loaded.device.toSorted(catalog.compareDevices).slice(0, 2).map(d => d.name), ['EtherMesh-1W', 'Photon-1W XAIO ESP32 C6']);
+      const fw = device.firmware[0];
+      assert.deepEqual(Object.keys(fw.version), expected);
+      assert.equal(catalog.defaultFirmwareVersion(fw), expected[0]);
+      assert.ok(catalog.renderNotice(loaded, device, fw).includes('erases settings'));
+      for(const [tag, version] of Object.entries(fw.version)) {
+        assert.equal(version.ref, tag);
+        assert.equal(version.releaseUrl, `${input.firmwareReleases.releaseBaseUrl}${tag}`);
+        assert.deepEqual(version.files.map(f => [f.type, f.address, catalog.firmwareUrl(loaded, f, version)]), [
+          ['flash-update', 0x10000, `${input.staticPath.replace('/main/firmware', `/${tag}/firmware`)}/lilygo_tbeam_1w/firmware.bin`],
+          ['flash-wipe', 0, `${input.staticPath.replace('/main/firmware', `/${tag}/firmware`)}/lilygo_tbeam_1w/firmware.factory.bin`],
+        ]);
+      }
+    });
+  }
+}
+
+for(const source of ['feed', 'cache', 'fallback']) {
+  test(`${source} renders exact shared notices for every configured variant`, async t => {
+    cache.clear();
+    t.mock.method(console, 'warn', () => {});
+    const input = structuredClone(baseline);
+    const tag = 'v1.4.0'; // Eligible test fixture, not an assertion of an upstream release.
+    input.firmwareReleases.fallbackTags = [tag];
+    const discovered = [{tag_name:tag}];
+    // Supreme deliberately disables expansion. Supply an explicit eligible fixture
+    // so its production notice path is exercised without changing its availability.
+    for(const device of input.device) {
+      for(const fw of device.firmware) {
+        if(fw.expandReleases === false) fw.version[tag] = structuredClone(fw.version.main);
+      }
+    }
+    if(source === 'cache') cache.set(`firmware-releases:${input.firmwareReleases.api}`, JSON.stringify({fetchedAt:Date.now(), releases:discovered}));
+    globalThis.fetch = async url => {
+      if(url === '/config.json') return {ok:true, json:async () => structuredClone(input)};
+      assert.notEqual(source, 'cache', 'fresh cache must avoid network discovery');
+      return {ok:source !== 'fallback', status:502, json:async () => structuredClone(discovered)};
+    };
+    const loaded = await catalog.loadCatalog();
+    assert.deepEqual(loaded.device.map(d => d.name), baseline.device.map(d => d.name));
+    const expected = {
+      esp32: 'Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.',
+      nrf52: 'Use Flash to install the firmware DFU package. Attach a suitable antenna before powering the device and transmitting.',
+    };
+    for(const device of loaded.device) {
+      for(const fw of device.firmware) {
+        assert.equal(catalog.defaultFirmwareVersion(fw), tag, device.name);
+        assert.equal(catalog.renderNotice(loaded, device, fw), expected[device.type], device.name);
+        assert.doesNotMatch(catalog.renderNotice(loaded, device, fw), /7\.4 V|battery pack|2 A discharge|USB-C\b|sustained high-power/, device.name);
+        assert.equal(fw.version[tag].notes, `Release ${tag}. Open the release page for the full changelog.`);
+        if(device.type === 'nrf52') {
+          assert.doesNotMatch(catalog.renderNotice(loaded, device, fw), /Erase Device|factory image|erases settings/);
+          assert.ok(fw.version[tag].files.every(f => f.type === 'flash' && f.name.endsWith('/firmware.zip')));
+        }
       }
     }
   });

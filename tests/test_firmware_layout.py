@@ -38,6 +38,54 @@ class FirmwareLayoutTest(unittest.TestCase):
                     ],
                 )
 
+    def test_tbeam_1w_has_distinct_release_gated_factory_layout(self):
+        matches = [d for d in self.config["device"] if d.get("slug") == "lilygo-tbeam-1w"]
+        self.assertEqual(len(matches), 1, "T-Beam 1W must be a distinct catalogue device")
+        device = matches[0]
+        self.assertEqual(
+            (device["name"], device["maker"], device["class"], device["type"]),
+            ("LilyGO T-Beam 1W", "lilygo", "openhop", "esp32"),
+        )
+        self.assertEqual(device["icon"], "/img/lora.svg")
+        self.assertNotIn("image", device)
+        firmware = device["firmware"][0]
+        self.assertEqual(firmware["role"], "openHopModem")
+        self.assertEqual(firmware["minimumRelease"], "v1.4.0")
+        self.assertIsNot(firmware.get("expandReleases"), False)
+        self.assertEqual(list(firmware["version"]), ["main"])
+        self.assertEqual(
+            [(f["type"], f["name"], f["address"]) for f in firmware["version"]["main"]["files"]],
+            [("flash-update", "lilygo_tbeam_1w/firmware.bin", 0x10000),
+             ("flash-wipe", "lilygo_tbeam_1w/firmware.factory.bin", 0x0)],
+        )
+        self.assertEqual(firmware["notice"], "esp32Flashing")
+        self.assertEqual(firmware["version"]["main"]["notes"], self.config["notice"]["esp32Flashing"])
+        supreme = next(d for d in self.config["device"] if d["name"] == "LilyGo T-Beam-S3 Supreme")
+        self.assertFalse(supreme["firmware"][0]["expandReleases"])
+        self.assertTrue(all(f["name"].startswith("lilygo_tbeam_s3_supreme/") for f in self.firmware_files_for_device(supreme["name"])))
+
+    def test_all_variants_reference_concise_shared_flashing_notices(self):
+        expected = {
+            "esp32Flashing": "Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.",
+            "nrf52Flashing": "Use Flash to install the firmware DFU package. Attach a suitable antenna before powering the device and transmitting.",
+        }
+        self.assertEqual(self.config["notice"], expected)
+        for device in self.config["device"]:
+            for firmware in device["firmware"]:
+                with self.subTest(device=device["name"], role=firmware["role"]):
+                    key = {"esp32": "esp32Flashing", "nrf52": "nrf52Flashing"}[device["type"]]
+                    self.assertEqual(firmware["notice"], key)
+                    if device["type"] == "nrf52":
+                        self.assertTrue(all(f["type"] == "flash" for f in firmware["version"]["main"]["files"]))
+                    for version in firmware["version"].values():
+                        self.assertNotRegex(version.get("notes", ""), r"7\.4 V|battery pack|2 A discharge|USB-C\b|sustained high-power")
+
+    def test_tbeam_1w_readme_documents_minimum_release_and_safe_modes(self):
+        readme = (REPO_ROOT / "README.md").read_text()
+        self.assertIn("- LilyGO T-Beam 1W (v1.4.0 and newer)", readme)
+        for required in ("lilygo_tbeam_1w/firmware.bin", "lilygo_tbeam_1w/firmware.factory.bin", "erases settings", "7.4 V", "battery pack", "at least 2 A discharge", "USB-C"):
+            self.assertIn(required, readme)
+
     def test_release_filter_excludes_tags_without_factory_images(self):
         release_config = self.config["firmwareReleases"]
         tag_pattern = re.compile(release_config["tagPattern"])
