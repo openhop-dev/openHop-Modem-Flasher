@@ -33,6 +33,7 @@ Only published stable releases are selectable, with the newest eligible semantic
 - Heltec V4.3
 - Ikoka Stick
 - LilyGo T3S3
+- LilyGO T-Beam 1W (v1.4.0 and newer)
 - LilyGo T-Beam-S3 Supreme
 - RAK3401 + RAK13302
 - RAK4631 USB
@@ -56,6 +57,16 @@ The flasher configuration points at raw firmware files from each release tag. ES
 - `firmware.bin` at `0x10000`
 
 For nRF52 devices, the flasher uses the variant's `firmware.zip` DFU package.
+
+### LilyGO T-Beam 1W
+
+This is a distinct device, not the T-Beam-S3 Supreme. It is available only when release discovery includes a published stable v1.4.0 or newer; older releases, branches and prereleases are not offered. If no eligible release is discovered (including the current v1.0.1-only fallback), the device remains hidden.
+
+- **Firmware-only update:** disable **Erase Device**, then use **Flash** to write `lilygo_tbeam_1w/firmware.bin` at `0x10000`.
+- **Initial install / full flash:** enable **Erase Device** to write the complete `lilygo_tbeam_1w/firmware.factory.bin` at `0x0`. This erases settings.
+- Attach a suitable antenna before transmitting. For sustained high-power operation, use a recommended **7.4 V battery pack rated for at least 2 A discharge**; USB-C power may be marginal.
+
+Automated catalogue tests do not validate physical hardware, fan operation or TCXO behavior.
 
 ## Architecture and local validation
 

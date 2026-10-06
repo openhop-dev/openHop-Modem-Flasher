@@ -38,6 +38,40 @@ class FirmwareLayoutTest(unittest.TestCase):
                     ],
                 )
 
+    def test_tbeam_1w_has_distinct_release_gated_factory_layout(self):
+        matches = [d for d in self.config["device"] if d.get("slug") == "lilygo-tbeam-1w"]
+        self.assertEqual(len(matches), 1, "T-Beam 1W must be a distinct catalogue device")
+        device = matches[0]
+        self.assertEqual(
+            (device["name"], device["maker"], device["class"], device["type"]),
+            ("LilyGO T-Beam 1W", "lilygo", "openhop", "esp32"),
+        )
+        self.assertEqual(device["icon"], "/img/lora.svg")
+        self.assertNotIn("image", device)
+        firmware = device["firmware"][0]
+        self.assertEqual(firmware["role"], "openHopModem")
+        self.assertEqual(firmware["minimumRelease"], "v1.4.0")
+        self.assertIsNot(firmware.get("expandReleases"), False)
+        self.assertEqual(list(firmware["version"]), ["main"])
+        self.assertEqual(
+            [(f["type"], f["name"], f["address"]) for f in firmware["version"]["main"]["files"]],
+            [("flash-update", "lilygo_tbeam_1w/firmware.bin", 0x10000),
+             ("flash-wipe", "lilygo_tbeam_1w/firmware.factory.bin", 0x0)],
+        )
+        # Release expansion replaces version notes, so warnings must also survive as a notice.
+        for text in (firmware["version"]["main"]["notes"], firmware["notice"]):
+            for required in ("Flash", "Erase Device", "erases settings", "antenna", "7.4 V", "battery pack", "at least 2 A discharge", "USB-C", "sustained high-power"):
+                self.assertIn(required, text)
+        supreme = next(d for d in self.config["device"] if d["name"] == "LilyGo T-Beam-S3 Supreme")
+        self.assertFalse(supreme["firmware"][0]["expandReleases"])
+        self.assertTrue(all(f["name"].startswith("lilygo_tbeam_s3_supreme/") for f in self.firmware_files_for_device(supreme["name"])))
+
+    def test_tbeam_1w_readme_documents_minimum_release_and_safe_modes(self):
+        readme = (REPO_ROOT / "README.md").read_text()
+        self.assertIn("- LilyGO T-Beam 1W (v1.4.0 and newer)", readme)
+        for required in ("lilygo_tbeam_1w/firmware.bin", "lilygo_tbeam_1w/firmware.factory.bin", "erases settings", "7.4 V", "battery pack", "at least 2 A discharge", "USB-C"):
+            self.assertIn(required, readme)
+
     def test_release_filter_excludes_tags_without_factory_images(self):
         release_config = self.config["firmwareReleases"]
         tag_pattern = re.compile(release_config["tagPattern"])
