@@ -15,7 +15,10 @@
 			"tooltip": "Flash a published stable openHop Modem release from the openHop modem repository."
 		}
 	},
-	"notice": {},
+	"notice": {
+		"esp32Flashing": "Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.",
+		"nrf52Flashing": "Use Flash to install the firmware DFU package. Attach a suitable antenna before powering the device and transmitting."
+	},
 	"maker": {
 		"generic": {
 			"name": "Generic"
@@ -72,7 +75,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"image": "/img/meshsmith_ethermesh.png",
@@ -117,7 +121,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"image": "/img/meshsmith_photon.png",
@@ -150,7 +155,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			]
 		},
@@ -193,7 +199,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"image": "/img/station_g2.svg"
@@ -238,7 +245,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"image": "/img/station_g3.svg"
@@ -263,7 +271,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "nrf52Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/heltec_t114.svg'>"
@@ -307,7 +316,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/heltec_v3.svg'>"
@@ -351,7 +361,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"image": "/img/heltec_wt2.svg"
@@ -395,7 +406,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/heltec_v4.svg'>"
@@ -439,7 +451,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/heltec_v4.svg'>"
@@ -483,7 +496,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/heltec_v4.svg'>"
@@ -527,7 +541,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/ikoka_stick.svg'>"
@@ -571,7 +586,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/lilygo_t3s3.svg'>"
@@ -587,10 +603,10 @@
 				{
 					"role": "openHopModem",
 					"minimumRelease": "v1.4.0",
-					"notice": "Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before transmitting. For sustained high-power operation, use a recommended 7.4 V battery pack rated for at least 2 A discharge; USB-C power may be marginal.",
+					"notice": "esp32Flashing",
 					"version": {
 						"main": {
-							"notes": "Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before transmitting. For sustained high-power operation, use a recommended 7.4 V battery pack rated for at least 2 A discharge; USB-C power may be marginal.",
+							"notes": "Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.",
 							"files": [
 								{
 									"type": "flash-update",
@@ -650,7 +666,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/lilygo_tbeam_supreme.svg'>"
@@ -694,7 +711,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/rak_3112.svg'>"
@@ -720,7 +738,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "nrf52Flashing"
 				}
 			],
 			"image": "/img/rak_1w.svg"
@@ -746,7 +765,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "nrf52Flashing"
 				}
 			],
 			"image": "/img/rak_4631.svg"
@@ -771,7 +791,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "nrf52Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/rak_4631.svg'>"
@@ -796,7 +817,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "nrf52Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/xiao_nrf52.svg'>"
@@ -840,7 +862,8 @@
 								}
 							]
 						}
-					}
+					},
+					"notice": "esp32Flashing"
 				}
 			],
 			"tooltip": "<img class='device' src='/img/xiao_esp32s3.svg'>"

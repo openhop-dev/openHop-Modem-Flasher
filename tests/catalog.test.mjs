@@ -142,6 +142,48 @@ for(const source of ['feed', 'cache', 'fallback']) {
   }
 }
 
+for(const source of ['feed', 'cache', 'fallback']) {
+  test(`${source} renders exact shared notices for every configured variant`, async t => {
+    cache.clear();
+    t.mock.method(console, 'warn', () => {});
+    const input = structuredClone(baseline);
+    const tag = 'v1.4.0'; // Eligible test fixture, not an assertion of an upstream release.
+    input.firmwareReleases.fallbackTags = [tag];
+    const discovered = [{tag_name:tag}];
+    // Supreme deliberately disables expansion. Supply an explicit eligible fixture
+    // so its production notice path is exercised without changing its availability.
+    for(const device of input.device) {
+      for(const fw of device.firmware) {
+        if(fw.expandReleases === false) fw.version[tag] = structuredClone(fw.version.main);
+      }
+    }
+    if(source === 'cache') cache.set(`firmware-releases:${input.firmwareReleases.api}`, JSON.stringify({fetchedAt:Date.now(), releases:discovered}));
+    globalThis.fetch = async url => {
+      if(url === '/config.json') return {ok:true, json:async () => structuredClone(input)};
+      assert.notEqual(source, 'cache', 'fresh cache must avoid network discovery');
+      return {ok:source !== 'fallback', status:502, json:async () => structuredClone(discovered)};
+    };
+    const loaded = await catalog.loadCatalog();
+    assert.deepEqual(loaded.device.map(d => d.name), baseline.device.map(d => d.name));
+    const expected = {
+      esp32: 'Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.',
+      nrf52: 'Use Flash to install the firmware DFU package. Attach a suitable antenna before powering the device and transmitting.',
+    };
+    for(const device of loaded.device) {
+      for(const fw of device.firmware) {
+        assert.equal(catalog.defaultFirmwareVersion(fw), tag, device.name);
+        assert.equal(catalog.renderNotice(loaded, device, fw), expected[device.type], device.name);
+        assert.doesNotMatch(catalog.renderNotice(loaded, device, fw), /7\.4 V|battery pack|2 A discharge|USB-C\b|sustained high-power/, device.name);
+        assert.equal(fw.version[tag].notes, `Release ${tag}. Open the release page for the full changelog.`);
+        if(device.type === 'nrf52') {
+          assert.doesNotMatch(catalog.renderNotice(loaded, device, fw), /Erase Device|factory image|erases settings/);
+          assert.ok(fw.version[tag].files.every(f => f.type === 'flash' && f.name.endsWith('/firmware.zip')));
+        }
+      }
+    }
+  });
+}
+
 test('default ignores branch and empty versions regardless of insertion order', () => {
   const version = {files:[{}]};
   assert.equal(catalog.defaultFirmwareVersion({version:{'v1.2.0':version, main:version, 'v1.10.0':version, 'v2.0.0':{files:[]}}}), 'v1.10.0');

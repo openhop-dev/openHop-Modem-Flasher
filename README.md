@@ -58,13 +58,20 @@ The flasher configuration points at raw firmware files from each release tag. ES
 
 For nRF52 devices, the flasher uses the variant's `firmware.zip` DFU package.
 
+Every configured variant references a shared firmware-level flashing notice, which remains visible after release expansion replaces version notes:
+
+- **ESP32:** Use Flash with Erase Device disabled for firmware-only updates. Erase Device flashes the complete factory image and erases settings. Attach a suitable antenna before powering the device and transmitting.
+- **nRF52:** Use Flash to install the firmware DFU package. Attach a suitable antenna before powering the device and transmitting.
+
+The nRF52 notice does not imply an erase option. Board-specific power guidance remains in the documentation below, not in the flashing notice.
+
 ### LilyGO T-Beam 1W
 
 This is a distinct device, not the T-Beam-S3 Supreme. It is available only when release discovery includes a published stable v1.4.0 or newer; older releases, branches and prereleases are not offered. If no eligible release is discovered (including the current v1.0.1-only fallback), the device remains hidden.
 
 - **Firmware-only update:** disable **Erase Device**, then use **Flash** to write `lilygo_tbeam_1w/firmware.bin` at `0x10000`.
 - **Initial install / full flash:** enable **Erase Device** to write the complete `lilygo_tbeam_1w/firmware.factory.bin` at `0x0`. This erases settings.
-- Attach a suitable antenna before transmitting. For sustained high-power operation, use a recommended **7.4 V battery pack rated for at least 2 A discharge**; USB-C power may be marginal.
+- Attach a suitable antenna before powering the device and transmitting. For sustained high-power operation, use a recommended **7.4 V battery pack rated for at least 2 A discharge**; USB-C power may be marginal.
 
 Automated catalogue tests do not validate physical hardware, fan operation or TCXO behavior.
 
