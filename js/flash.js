@@ -1,7 +1,7 @@
 // Flashing backends: esptool.js for ESP32, adafruit-nrfutil style serial DFU for nRF52
-import { Dfu } from '/lib/dfu.js?v=openhop14';
-import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop14';
-import { blobToBinaryString, delay } from './util.js?v=openhop14';
+import { Dfu } from '/lib/dfu.js?v=openhop15';
+import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop15';
+import { blobToBinaryString, delay } from './util.js?v=openhop15';
 
 // ESP32 app partition; merged images (bootloader + partitions + app) start at 0
 const ESP32_APP_ADDRESS = 0x10000;

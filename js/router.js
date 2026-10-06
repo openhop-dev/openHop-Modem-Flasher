@@ -1,8 +1,8 @@
 // URL scheme: /[class-]<device>/<role>/<version>, plus /console
 // A class prefix (e.g. /ripple-lilygo-t-deck/) limits the device's firmware list to that class.
 // NOTE: the server must serve index.html for all unknown paths (catch-all / try_files).
-import { hasVersions, roleValue } from './catalog.js?v=openhop14';
-import { toSlug } from './util.js?v=openhop14';
+import { hasVersions, roleValue } from './catalog.js?v=openhop15';
+import { toSlug } from './util.js?v=openhop15';
 
 export const CONSOLE_PATH = '/console';
 

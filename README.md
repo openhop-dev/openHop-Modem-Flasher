@@ -82,7 +82,7 @@ No dependencies need to be installed and there is no build step:
 - `flasher.js` boots the production Vue application; `js/app.js` owns selection and UI state.
 - `js/catalog.js` loads the unchanged openHop catalogue, discovers releases and resolves selected-tag firmware URLs.
 - `js/flash.js` selects complete flash plans and invokes ESP32/DFU backends. Explicit per-file addresses take priority; full flash writes every configured image. P4 factory images start at zero.
-- `js/router.js` handles in-app history. Initial non-root URLs deliberately redirect to `/`; deep-link reload restoration is not supported.
+- `js/router.js` restores direct links on initial load/reload and handles in-app history. See routing support below.
 - `js/serial.js` chooses Web Serial or the upstream Android serial-over-WebUSB polyfill; `lib/dfu.js` propagates rejected reads without waiting for its timeout.
 - `worker.js` and `wrangler.jsonc` retain the same release-proxy/static-assets deployment. `.assetsignore` excludes tests and development tooling.
 
@@ -96,9 +96,23 @@ for file in js/*.js lib/dfu.js lib/overflow.vue.js lib/polyfill/serial.js; do no
 git diff --check
 ```
 
-Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop14` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
+Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop15` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
 
 For a static UI preview, run `python3 -m http.server 8000 --bind 127.0.0.1`. This server does **not** implement `/api/firmware-releases`: expect fallback versions and a handled HTTP 404. Use a separately authorized local Worker preview to exercise the real proxy. Firmware binaries still require browser CORS access to raw GitHub. Do not click Flash or Enter DFU mode during ordinary UI validation.
+
+## Direct links and reloads
+
+Build URLs use `/<device-slug>/<role-slug>/<version>`, for example:
+
+```text
+/openhop-uniteng-bq-voyage-station-g3/openhop-modem/v1.4.0
+```
+
+Opening or reloading this URL restores the device, role and exact version **if it is eligible in the discovered catalogue**. A device-only URL opens its role choices; a device/role URL selects the newest eligible stable release and adds that version to the URL. `/` still opens the device list. Browser Back/Forward restores selections; navigation remains locked during an active flash transaction. Query parameters such as `?config=` and `?iframe=` are preserved.
+
+Unknown routes use the existing partial-match fallback: an unknown device returns to `/`, an unknown role returns to that device's role choices, and an unknown/unavailable version selects the newest eligible release and replaces the URL with its **actual** version. Thus a cached or fallback release list that lacks a requested version does not imply that version is available. Devices without eligible releases return to the device list; branch builds such as `main` are never selectable.
+
+The server must serve `index.html` for application paths, without redirecting their URLs to `/`. Cloudflare's configured SPA fallback provides this in production. Python's simple static server does not: opening/reloading a deep path there returns HTTP 404. Use an SPA-aware local preview server to verify reloads; the release API is a separate requirement.
 
 ## Browser and mobile limits
 

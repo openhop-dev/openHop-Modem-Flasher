@@ -54,16 +54,18 @@ class ModularUITest(unittest.TestCase):
             self.assertTrue(buttons)
             self.assertTrue(all(':disabled="flashing.busy"' in button for button in buttons))
 
-    def test_startup_redirect_and_production_graph(self):
+    def test_startup_restoration_and_production_graph(self):
         entry = source('flasher.js')
-        self.assertIn("location.replace('/')", entry)
+        self.assertNotIn("location.replace('/')", entry)
+        self.assertIn('await loadCatalog()', entry)
+        self.assertIn('setup: createSetup(config)', entry)
         for path in ['flasher.js', 'js/app.js', 'lib/overflow.vue.js']:
             self.assertNotIn('vue.min.js', source(path))
-        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop14')
+        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop15')
         for path in ['flasher.js', 'js/app.js', 'js/catalog.js', 'js/router.js', 'js/flash.js', 'js/serial.js', 'lib/overflow.vue.js']:
             for spec in re.findall(r'(?:from\s*|import\s*\()[\'"]([^\'"]+)', source(path)):
                 if spec.startswith(('.', '/')):
-                    self.assertIn('?v=openhop14', spec, (path, spec))
+                    self.assertIn('?v=openhop15', spec, (path, spec))
 
 if __name__ == '__main__':
     unittest.main()

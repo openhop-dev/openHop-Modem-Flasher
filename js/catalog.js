@@ -1,7 +1,7 @@
 // Device/firmware catalog: static config (config*.json) merged with GitHub releases served by /releases
-import { configName } from './site.js?v=openhop14';
-import { fetchJson } from './util.js?v=openhop14';
-import { releaseTagAtLeast } from '/lib/version.js?v=openhop14';
+import { configName } from './site.js?v=openhop15';
+import { fetchJson } from './util.js?v=openhop15';
+import { releaseTagAtLeast } from '/lib/version.js?v=openhop15';
 
 // Display order and headings of firmware groups on the "choose role" screen
 export const firmwareClasses = {
