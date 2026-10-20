@@ -33,7 +33,12 @@ export const hardwareStubs = {
     export class ESPLoader {
       constructor(options) { this.transport = options.transport; }
       async main() {} async flashId() {} async after() {}
-      async writeFlash(options) { globalThis.writtenFlash = options; }
+      async writeFlash(options) {
+        for (const file of options.fileArray) {
+          if (!(file.data instanceof Uint8Array)) throw new TypeError('esptool-js 0.7.0 requires Uint8Array firmware');
+        }
+        globalThis.writtenFlash = options;
+      }
     }`,
-  'js/util.js': `export const delay = async () => {}; export const blobToBinaryString = async blob => String.fromCharCode(...new Uint8Array(await blob.arrayBuffer()));`,
+
 };

@@ -1,11 +1,11 @@
-import { reactive, ref, shallowRef, nextTick, watch, computed } from '/lib/vue.prod.min.js?v=openhop15';
-import { SerialConsole } from '/lib/console.js?v=openhop15';
-import { commandReference } from './commands.js?v=openhop15';
-import { firmwareClasses, defaultFirmwareVersion, compareDevices, hasVersions, roleValue, renderNotice, formatChangeLog, firmwareUrl } from './catalog.js?v=openhop15';
-import { Dfu, downloadFirmware, esp32Address, flashEsp32, flashNrf52, isMergedImage, pickFlashFiles, releaseFlasher } from './flash.js?v=openhop15';
-import { CONSOLE_PATH, buildPath, parsePath, isSamePage } from './router.js?v=openhop15';
-import { serialAPI, serialSupported } from './serial.js?v=openhop15';
-import { isIframe, logoFile } from './site.js?v=openhop15';
+import { reactive, ref, shallowRef, nextTick, watch, computed } from '/lib/vue.prod.min.js?v=openhop16';
+import { SerialConsole } from '/lib/console.js?v=openhop16';
+import { commandReference } from './commands.js?v=openhop16';
+import { firmwareClasses, defaultFirmwareVersion, compareDevices, hasVersions, roleValue, renderNotice, formatChangeLog, firmwareUrl } from './catalog.js?v=openhop16';
+import { Dfu, downloadFirmware, esp32Address, flashEsp32, flashNrf52, isMergedImage, pickFlashFiles, releaseFlasher } from './flash.js?v=openhop16';
+import { CONSOLE_PATH, buildPath, parsePath, isSamePage } from './router.js?v=openhop16';
+import { serialAPI, serialSupported } from './serial.js?v=openhop16';
+import { isIframe, logoFile } from './site.js?v=openhop16';
 
 const WEB_SERIAL_UNSUPPORTED = "Your browser doesn't support Web Serial API. Please use Chrome or Edge on Desktop";
 
