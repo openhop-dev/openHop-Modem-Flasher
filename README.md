@@ -86,7 +86,19 @@ No dependencies need to be installed and there is no build step:
 - `js/serial.js` chooses Web Serial or the upstream Android serial-over-WebUSB polyfill; `lib/dfu.js` propagates rejected reads without waiting for its timeout.
 - `worker.js` and `wrangler.jsonc` retain the same release-proxy/static-assets deployment. `.assetsignore` excludes tests and development tooling.
 
-Run the dependency-free regression suites:
+### Vendored ESP32 loader
+
+`lib/esp32.js` is the unmodified `bundle.js` from the official npm **esptool-js 0.7.0** package ([source release](https://github.com/espressif/esptool-js/releases/tag/v0.7.0), [P4 fix](https://github.com/espressif/esptool-js/pull/268)). Its Apache-2.0 license is retained in `lib/esptool-js.LICENSE`; bundled dependency notices remain in the bundle.
+
+- Package: `https://registry.npmjs.org/esptool-js/-/esptool-js-0.7.0.tgz`
+- npm integrity: `sha512-9wHuW/s9t4Vs6HKcr3pra3gbRVWwaN0eabMWodWH4KEJHEYZxgmWwZ3s0F4xcWVCZOc/L98bGZ4uWoZvR8KBKA==`
+- Bundle SHA-256: `00ebe6fb0b202976d3e2a3c6b9a6bd438c26a81d2af6739c95ac276a64c1a84e`
+
+To refresh, download the exact pinned tarball, verify its SHA-512 against the npm integrity above, and copy `package/bundle.js` and `package/LICENSE` to those paths. No application build or npm installation is required. Do not edit the minified bundle by hand.
+
+This version powers flash before attachment on ESP32-P4 v3.1/v3.2, including the v3.2 download-mode XPD eFuse case. Other revisions do not receive that power-up sequence. The backend passes `Uint8Array` firmware bytes as required by 0.7.0, preserving update/full-flash offsets and erase behavior. Register-level tests and real vendor compression tests run without a physical board; successful flashing on an affected board still requires hardware validation.
+
+Run the dependency-free regression suites with **Node.js 22 or newer** (older Node versions lack browser APIs used by the existing tests):
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
@@ -96,7 +108,7 @@ for file in js/*.js lib/dfu.js lib/overflow.vue.js lib/polyfill/serial.js; do no
 git diff --check
 ```
 
-Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop15` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
+Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop16` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
 
 For a static UI preview, run `python3 -m http.server 8000 --bind 127.0.0.1`. This server does **not** implement `/api/firmware-releases`: expect fallback versions and a handled HTTP 404. Use a separately authorized local Worker preview to exercise the real proxy. Firmware binaries still require browser CORS access to raw GitHub. Do not click Flash or Enter DFU mode during ordinary UI validation.
 

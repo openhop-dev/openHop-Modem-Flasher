@@ -15,15 +15,7 @@ export async function fetchJson(url, options) {
   return await res.json();
 }
 
-// esptool.js expects firmware as a "binary string" (one char per byte)
-export async function blobToBinaryString(blob) {
-  const bytes = new Uint8Array(await blob.arrayBuffer());
-  const chunkSize = 0x8000;
-  let binString = '';
-
-  for(let i = 0; i < bytes.length; i += chunkSize) {
-    binString += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-
-  return binString;
+// esptool-js 0.7.0 requires raw bytes, not binary strings.
+export async function blobToBytes(blob) {
+  return new Uint8Array(await blob.arrayBuffer());
 }

@@ -61,11 +61,11 @@ class ModularUITest(unittest.TestCase):
         self.assertIn('setup: createSetup(config)', entry)
         for path in ['flasher.js', 'js/app.js', 'lib/overflow.vue.js']:
             self.assertNotIn('vue.min.js', source(path))
-        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop15')
+        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop16')
         for path in ['flasher.js', 'js/app.js', 'js/catalog.js', 'js/router.js', 'js/flash.js', 'js/serial.js', 'lib/overflow.vue.js']:
             for spec in re.findall(r'(?:from\s*|import\s*\()[\'"]([^\'"]+)', source(path)):
                 if spec.startswith(('.', '/')):
-                    self.assertIn('?v=openhop15', spec, (path, spec))
+                    self.assertIn('?v=openhop16', spec, (path, spec))
 
 if __name__ == '__main__':
     unittest.main()

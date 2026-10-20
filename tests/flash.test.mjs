@@ -17,7 +17,7 @@ test('full flash selects and writes every image, preserving explicit offsets', a
   await flash.flashEsp32({}, picked.map(file => ({ data: file.file, address: flash.esp32Address(file) })), {
     eraseAll: true, onProgress() {},
   });
-  assert.deepEqual(globalThis.writtenFlash.fileArray, [0, 0x8000, 0x10000].map((address, i) => ({ address, data: String.fromCharCode(i, 255) })));
+  assert.deepEqual(globalThis.writtenFlash.fileArray, [0, 0x8000, 0x10000].map((address, i) => ({ address, data: new Uint8Array([i, 255]) })));
   assert.equal(globalThis.writtenFlash.eraseAll, true);
 });
 

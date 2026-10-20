@@ -2,7 +2,7 @@
 const useUsbPolyfill = /Android/i.test(navigator.userAgent) && 'usb' in navigator;
 
 export const serialAPI = useUsbPolyfill
-  ? (await import('/lib/polyfill/serial.js?v=openhop15')).serial
+  ? (await import('/lib/polyfill/serial.js?v=openhop16')).serial
   : navigator.serial;
 
 export const serialSupported = Boolean(serialAPI);

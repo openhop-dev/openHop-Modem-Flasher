@@ -72,7 +72,7 @@ test('flash plan freezes wipe, chip, URLs, offsets and local data before the cho
   assert.equal(globalThis.writtenFlash.eraseAll, false, 'update must never become a full erase');
   assert.deepEqual(globalThis.writtenFlash.fileArray.map(f => f.address), [0x10000]);
   assert.ok(urls.every(url => url.includes('/v1.2.0/firmware/station_g3/')));
-  assert.equal(globalThis.writtenFlash.fileArray[0].data, 'original firmware');
+  assert.deepEqual(globalThis.writtenFlash.fileArray[0].data, new TextEncoder().encode('original firmware'));
 });
 
 test('flash locks synchronously against duplicate calls and unlocks after completion', async () => {
@@ -152,7 +152,7 @@ test('cancelled chooser restores selection without downloading or leaving an err
   assert.equal(app.selected.device.name, 'UnitEng/BQ Voyage Station G3');
   globalThis.fetch = async () => ({ok:true, blob:async () => new Blob(['retry'])});
   await app.flashDevice();
-  assert.equal(globalThis.writtenFlash.fileArray[0].data, 'retry');
+  assert.deepEqual(globalThis.writtenFlash.fileArray[0].data, new TextEncoder().encode('retry'));
 });
 
 for(const failure of ['chooser rejection', 'chooser synchronous error', 'download']) {
@@ -178,7 +178,7 @@ for(const failure of ['chooser rejection', 'chooser synchronous error', 'downloa
     assert.equal(app.flashing.phase, '');
     globalThis.fetch = async () => ({ok:true, blob:async () => new Blob(['recovered'])});
     await app.flashDevice();
-    assert.equal(globalThis.writtenFlash.fileArray[0].data, 'recovered');
+    assert.deepEqual(globalThis.writtenFlash.fileArray[0].data, new TextEncoder().encode('recovered'));
     assert.equal(app.flashing.busy, false);
   });
 }
@@ -195,7 +195,7 @@ test('custom local Blob is snapshotted before port selection', async () => {
   chooser.resolve({});
   await run;
   delete globalThis.requestPort;
-  assert.equal(globalThis.writtenFlash.fileArray[0].data, 'original');
+  assert.deepEqual(globalThis.writtenFlash.fileArray[0].data, new TextEncoder().encode('original'));
   assert.equal(globalThis.writtenFlash.fileArray[0].address, 0x10000);
   assert.equal(globalThis.writtenFlash.eraseAll, false);
 });

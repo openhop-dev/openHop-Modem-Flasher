@@ -1,7 +1,7 @@
 // Flashing backends: esptool.js for ESP32, adafruit-nrfutil style serial DFU for nRF52
-import { Dfu } from '/lib/dfu.js?v=openhop15';
-import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop15';
-import { blobToBinaryString, delay } from './util.js?v=openhop15';
+import { Dfu } from '/lib/dfu.js?v=openhop16';
+import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop16';
+import { blobToBytes, delay } from './util.js?v=openhop16';
 
 // ESP32 app partition; merged images (bootloader + partitions + app) start at 0
 const ESP32_APP_ADDRESS = 0x10000;
@@ -51,7 +51,7 @@ export async function flashEsp32(port, images, { eraseAll, terminal, onProgress,
     baudrate: 115200,
     romBaudrate: 115200,
     enableTracing: false,
-    fileArray: await Promise.all(images.map(async ({ data, address }) => ({ data: await blobToBinaryString(data), address }))),
+    fileArray: await Promise.all(images.map(async ({ data, address }) => ({ data: await blobToBytes(data), address }))),
     reportProgress: (index, written, total) => {
       const sizes = images.map(image => image.data.size);
       const complete = sizes.slice(0, index).reduce((sum, size) => sum + size, 0);
