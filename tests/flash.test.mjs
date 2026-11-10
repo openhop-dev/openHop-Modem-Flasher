@@ -44,3 +44,54 @@ test('every configured ESP32 board preserves both full-flash and update plans', 
     }
   }
 });
+
+test('ESP32 resolves the admitted image after connecting and before any flash write', async () => {
+  const events = [];
+  globalThis.admissionEvents = events;
+  const backend = await browserModule('js/flash.js', { ...hardwareStubs,
+    'lib/esp32.js': `export class Transport { async setRTS() {} async disconnect() { globalThis.admissionEvents.push('closed'); } }
+      export class HardReset {}
+      export class ESPLoader {
+        constructor(options) { this.transport = options.transport; this.chip = {CHIP_NAME:'ESP32-P4'}; }
+        async main() { globalThis.admissionEvents.push('connected'); }
+        async flashId() { globalThis.admissionEvents.push('flash-id'); }
+        async writeFlash(options) { globalThis.admissionEvents.push('write'); globalThis.writtenFlash = options; }
+        async after() { globalThis.admissionEvents.push('reset'); }
+      }`,
+  });
+  const bytes = new Uint8Array([0xe9, 0, 0xff]);
+  await backend.flashEsp32({}, [], {
+    eraseAll:true, onProgress() {},
+    resolvePlan: async loader => {
+      assert.equal(loader.chip.CHIP_NAME, 'ESP32-P4');
+      events.push('admitted');
+      return {images:[{data:new Blob([bytes]), address:0}],eraseAll:true};
+    },
+  });
+  assert.deepEqual(events, ['connected','flash-id','admitted','write','reset','closed']);
+  assert.deepEqual(globalThis.writtenFlash.fileArray, [{data:bytes, address:0}]);
+});
+
+for(const stage of ['initialize', 'admit']) {
+  test(`ESP32 ${stage} failure closes the port without erase/write`, async t => {
+    t.mock.method(console, 'error', () => {});
+    globalThis.admissionEvents = [];
+    globalThis.failedAdmissionStage = stage;
+    const backend = await browserModule('js/flash.js', { ...hardwareStubs,
+      'lib/esp32.js': `export class Transport { async setRTS() {} async disconnect() {globalThis.admissionEvents.push('closed');} }
+        export class HardReset {}
+        export class ESPLoader {
+          constructor(options) {this.transport=options.transport;}
+          async main() {if(globalThis.failedAdmissionStage === 'initialize') throw Error('original initialization reason');}
+          async flashId() {}
+          async writeFlash() {globalThis.admissionEvents.push('write');}
+          async after() {globalThis.admissionEvents.push('reset');}
+        }`,
+    });
+    await assert.rejects(backend.flashEsp32({}, [], {
+      eraseAll:true, onProgress() {},
+      resolvePlan:async () => {throw Error('original admission reason');},
+    }), /original (initialization|admission) reason/);
+    assert.deepEqual(globalThis.admissionEvents, ['closed']);
+  });
+}

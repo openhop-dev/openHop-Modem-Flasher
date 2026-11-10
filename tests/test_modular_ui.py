@@ -54,6 +54,27 @@ class ModularUITest(unittest.TestCase):
             self.assertTrue(buttons)
             self.assertTrue(all(':disabled="flashing.busy"' in button for button in buttons))
 
+    def test_p4_silicon_selection_controls(self):
+        html = source('index.html')
+        self.assertIn('{{ flashing.target }}', html)
+        self.assertIn('class="silicon-target"', html)
+        self.assertNotIn('v-html="flashing.target"', html)
+        for label in ['Identifying device...', 'Verifying firmware...', 'Confirm board and install mode...']:
+            self.assertIn(label, html)
+        self.assertRegex(html, r'<input[^>]+type="file"[^>]+accept="[^"]*\.json[^"]*"[^>]+multiple[^>]+@change="customFirmwareLoad"')
+        self.assertIn('Matching firmware is selected automatically.', html)
+        self.assertIn('matching firmware.json', html)
+
+    def test_flash_header_wraps_unbroken_firmware_names(self):
+        html, css = source('index.html'), source('css/flasher.css')
+        self.assertIn('class="flash-context"', html)
+        self.assertEqual(html.count('class="flash-identity"'), 2)
+        self.assertRegex(css, r'#app \.flash-context\s*\{[^}]*min-width:\s*0;')
+        self.assertRegex(css, r'#app \.flash-identity > span\s*\{[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere;')
+        self.assertIn('class="flash-heading"', html)
+        self.assertIn('grid-template-columns: minmax(0, 1fr) auto;', css)
+        self.assertRegex(css, r'#app \.flash-context\s*\{[^}]*display:\s*contents;')
+
     def test_startup_restoration_and_production_graph(self):
         entry = source('flasher.js')
         self.assertNotIn("location.replace('/')", entry)
@@ -61,11 +82,11 @@ class ModularUITest(unittest.TestCase):
         self.assertIn('setup: createSetup(config)', entry)
         for path in ['flasher.js', 'js/app.js', 'lib/overflow.vue.js']:
             self.assertNotIn('vue.min.js', source(path))
-        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop16')
+        self.assertRegex(source('index.html'), r'flasher\.js\?v=openhop17')
         for path in ['flasher.js', 'js/app.js', 'js/catalog.js', 'js/router.js', 'js/flash.js', 'js/serial.js', 'lib/overflow.vue.js']:
             for spec in re.findall(r'(?:from\s*|import\s*\()[\'"]([^\'"]+)', source(path)):
                 if spec.startswith(('.', '/')):
-                    self.assertIn('?v=openhop16', spec, (path, spec))
+                    self.assertIn('?v=openhop17', spec, (path, spec))
 
 if __name__ == '__main__':
     unittest.main()

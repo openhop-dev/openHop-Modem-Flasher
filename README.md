@@ -65,6 +65,47 @@ Every configured variant references a shared firmware-level flashing notice, whi
 
 The nRF52 notice does not imply an erase option. Board-specific power guidance remains in the documentation below, not in the flashing notice.
 
+### ESP32-P4 silicon selection
+
+EtherMesh-1W and ESP32-P4 Nano each remain one physical-board choice. After you select a serial port, the flasher reads the chip family and revision, shows the selected target, and admits only that board's matching release bundle:
+
+| Silicon revision | SDK profile | Environment suffix |
+| --- | --- | --- |
+| v0.1 through v1.99 (encoded 1–199) | `pre_v3` / `esp32p4_es` | Existing board environment |
+| v3.1 through v3.99 (encoded 301–399) | `v3` / `esp32p4` | `_v3` |
+
+Revision ranges come from the supported SDK profiles, not a generic “v3 or newer” guess. Literal v3.0 is not supported by these stock SDK bundles. Unknown or unreadable revisions, a different chip family, secure-download-mode restrictions, and missing/mismatched artifacts stop before any flash erase/write. There is no legacy or `main` fallback.
+
+The selected release must contain `firmware.json`, `SHA256SUMS.txt`, and the matching factory/application/component contract. Metadata, SDK identity and limits, component SHA-256 values, P4 image headers, factory slices and OTA partition fit are checked before writing. Configured QIO is kept distinct from actual DIO image headers. These are consistency/integrity checks against the chosen source, not a firmware-signature or authenticity guarantee.
+
+- **Erase Device / full install:** verify the complete matching factory image, then erase and write it at `0x0`. This erases settings.
+- **Firmware-only update:** verify the application at `0x10000` and read the installed bootloader and partition table. Their SHA-256 values must match the bundle's update contract; readback has a bounded deadline. If the contract differs or cannot be proved, stop and offer the explicit full-install remedy instead of erasing while writing only an application.
+
+Before detection, the Download menu does not offer an assumed legacy P4 BIN. Complete per-profile packages are available from the selected release page when published.
+
+Releases predating this metadata contract cannot be used for automatic P4 flashing through this implementation. A modem source PR/merge alone does not update existing release assets. Producer assets and a later selectable release containing both profiles, plus promotion of the flasher changes, are separate rollout steps; do not expose branch builds to work around missing releases.
+
+### Custom ESP32-P4 firmware
+
+Custom uploads remain independent of release discovery. Ordinary non-P4 BIN and inner nRF52 DFU ZIP handling is unchanged. A custom P4 BIN needs its matching `firmware.json` sidecar:
+
+1. Obtain and extract a trusted matching board/profile package; verify its provider's checksums.
+2. Choose **Custom Firmware**, selecting one BIN and its `firmware.json` together. Do not select the outer distribution ZIP.
+3. Click **Flash**, select the device, and review the detected revision, physical-board target and install-mode confirmation. The hardware chip is detected; the physical board is your responsibility to confirm.
+4. A byte-for-byte factory match permits an explicitly confirmed full install at `0x0` (erases settings). A matching application permits only the checked firmware-only update described above. Renaming a P4 BIN does not change its identity or make it compatible.
+
+Missing metadata, altered BINs, the wrong profile, unsafe component/layout contracts and declined confirmation cannot erase/write the device. Arbitrary third-party P4 BINs with permissive revision headers are not treated as compatibility proof.
+
+Automated tests use synthetic contract fixtures and simulated serial I/O; separately running real producer candidates through admission still does not prove physical readback, cold boot, Ethernet/DHCP, modem connectivity or RF operation. Both supported silicon families require hardware acceptance before release claims.
+
+The offline integration driver accepts a directory containing the four complete producer bundles (`esp32_p4_nano`, `esp32_p4_nano_v3`, `ethermesh_1w`, `ethermesh_1w_v3`):
+
+```bash
+node scripts/check-p4-candidates.mjs /path/to/candidates > p4-admission-report.json
+```
+
+It verifies supplied checksums/components and exercises all 16 catalogue/custom, factory/application admission paths through the production app and flash planner. Release discovery, installed-flash reads, board confirmation and serial writes are explicitly simulated; the driver neither builds firmware nor publishes a release. Producer-native image validation and physical commissioning remain separate checks.
+
 ### LilyGO T-Beam 1W
 
 This is a distinct device, not the T-Beam-S3 Supreme. It is available only when release discovery includes a published stable v1.4.0 or newer; older releases, branches and prereleases are not offered. If no eligible release is discovered (including the current v1.0.1-only fallback), the device remains hidden.
@@ -108,7 +149,7 @@ for file in js/*.js lib/dfu.js lib/overflow.vue.js lib/polyfill/serial.js; do no
 git diff --check
 ```
 
-Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop16` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
+Node tests execute real catalogue, routing, Vue selection and flash orchestration with network/hardware boundaries stubbed. They do not flash hardware. Python tests cover catalogue layouts, branding, safe controls and module wiring. When changing JavaScript, bump `openhop17` consistently in the entry, module imports and HTML/CSS URLs; an entry-only cache key does not invalidate its imports.
 
 For a static UI preview, run `python3 -m http.server 8000 --bind 127.0.0.1`. This server does **not** implement `/api/firmware-releases`: expect fallback versions and a handled HTTP 404. Use a separately authorized local Worker preview to exercise the real proxy. Firmware binaries still require browser CORS access to raw GitHub. Do not click Flash or Enter DFU mode during ordinary UI validation.
 

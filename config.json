@@ -57,6 +57,13 @@
 				{
 					"role": "openHopModem",
 					"slug": "ethermesh",
+					"silicon": {
+						"boardId": "ethermesh_1w",
+						"profiles": [
+							{"profile": "pre_v3", "environment": "ethermesh_1w", "minRevision": 1, "maxRevision": 199},
+							{"profile": "v3", "environment": "ethermesh_1w_v3", "minRevision": 301, "maxRevision": 399}
+						]
+					},
 					"version": {
 						"main": {
 							"notes": "Release EtherMesh-1W firmware from the openHop modem repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",
@@ -137,6 +144,13 @@
 			"firmware": [
 				{
 					"role": "openHopModem",
+					"silicon": {
+						"boardId": "esp32_p4_nano",
+						"profiles": [
+							{"profile": "pre_v3", "environment": "esp32_p4_nano", "minRevision": 1, "maxRevision": 199},
+							{"profile": "v3", "environment": "esp32_p4_nano_v3", "minRevision": 301, "maxRevision": 399}
+						]
+					},
 					"version": {
 						"main": {
 							"notes": "Release firmware from the upstream firmware repository release tag. Use Flash for firmware updates, or check Erase Device to erase the node and flash the complete factory image.",

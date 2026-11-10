@@ -1,7 +1,7 @@
 // Flashing backends: esptool.js for ESP32, adafruit-nrfutil style serial DFU for nRF52
-import { Dfu } from '/lib/dfu.js?v=openhop16';
-import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop16';
-import { blobToBytes, delay } from './util.js?v=openhop16';
+import { Dfu } from '/lib/dfu.js?v=openhop17';
+import { ESPLoader, Transport, HardReset } from '/lib/esp32.js?v=openhop17';
+import { blobToBytes, delay } from './util.js?v=openhop17';
 
 // ESP32 app partition; merged images (bootloader + partitions + app) start at 0
 const ESP32_APP_ADDRESS = 0x10000;
@@ -38,7 +38,7 @@ async function pulseRts(transport) {
 }
 
 // onLoader receives the ESPLoader as soon as it exists, so the caller can release the port later
-export async function flashEsp32(port, images, { eraseAll, terminal, onProgress, onLoader }) {
+export async function flashEsp32(port, images, { eraseAll, terminal, onProgress, onLoader, resolvePlan }) {
   const transport = new Transport(port, true);
   const options = {
     transport,
@@ -65,15 +65,23 @@ export async function flashEsp32(port, images, { eraseAll, terminal, onProgress,
   onLoader?.(loader);
 
   try {
-    await loader.main();
-    await loader.flashId();
-  }
-  catch(e) {
-    console.error(e);
-    throw new Error(`Failed to initialize. Did you place the device into firmware download mode? Detail: ${e}`);
-  }
+    try {
+      await loader.main();
+      await loader.flashId();
+    }
+    catch(e) {
+      console.error(e);
+      throw new Error(`Failed to initialize. Did you place the device into firmware download mode? Detail: ${e}`);
+    }
 
-  try {
+    // Revision-aware plans cannot choose their bytes until the chip is identified.
+    if(resolvePlan) {
+      const plan = await resolvePlan(loader);
+      if(!Array.isArray(plan?.images) || !plan.images.length || typeof plan.eraseAll !== 'boolean') throw new Error('Invalid admitted flash plan');
+      images = plan.images;
+      options.eraseAll = plan.eraseAll;
+      options.fileArray = await Promise.all(images.map(async ({data, address}) => ({data:await blobToBytes(data), address})));
+    }
     await loader.writeFlash(options);
     await delay(100);
     await loader.after('hard_reset');
@@ -85,8 +93,8 @@ export async function flashEsp32(port, images, { eraseAll, terminal, onProgress,
     throw new Error(`ESP32 flashing failed: ${e}`);
   }
   finally {
-    await pulseRts(transport);
-    await transport.disconnect();
+    try { await pulseRts(transport); }
+    finally { await transport.disconnect(); }
   }
 }
 
