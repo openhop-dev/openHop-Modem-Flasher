@@ -8,6 +8,8 @@ const baseline = JSON.parse(await readFile(new URL('../config.json', import.meta
 let cache = new Map();
 globalThis.localStorage = { getItem: key => cache.get(key) ?? null, setItem: (key, value) => cache.set(key, value) };
 const releases = [
+  // Synthetic released-tag fixture, not evidence that v1.4.2 is published.
+  { tag_name: 'v1.4.2', html_url: 'https://github.com/openhop-dev/openhop_modem/releases/tag/v1.4.2' },
   { tag_name: 'v1.2.0', html_url: 'https://github.com/openhop-dev/openhop_modem/releases/tag/v1.2.0' },
   { tag_name: 'v1.1.0', html_url: 'https://github.com/openhop-dev/openhop_modem/releases/tag/v1.1.0' },
   { tag_name: 'v1.0.1', html_url: 'https://github.com/openhop-dev/openhop_modem/releases/tag/v1.0.1' },
@@ -23,13 +25,14 @@ test('catalog expands stable releases, omits branch builds, gates newer hardware
   };
   const config = await catalog.loadCatalog();
   const fw = name => config.device.find(d => d.name === name).firmware[0];
-  assert.deepEqual(Object.keys(fw('EtherMesh-1W').version), ['v1.2.0', 'v1.1.0', 'v1.0.1']);
-  assert.deepEqual(Object.keys(fw('RAK3401 + RAK13302').version), ['v1.2.0']);
-  assert.equal(fw('EtherMesh-1W').version['v1.2.0'].releaseUrl, releases[0].html_url);
+  assert.deepEqual(Object.keys(fw('EtherMesh-1W').version), ['v1.4.2']);
+  assert.deepEqual(Object.keys(fw('Photon-1W XAIO ESP32 C6').version), ['v1.4.2', 'v1.2.0', 'v1.1.0', 'v1.0.1']);
+  assert.deepEqual(Object.keys(fw('RAK3401 + RAK13302').version), ['v1.4.2', 'v1.2.0']);
+  assert.equal(fw('EtherMesh-1W').version['v1.4.2'].releaseUrl, releases[0].html_url);
   for(const device of config.device) {
     for(const firmware of device.firmware) {
       assert.ok(!('main' in firmware.version), device.name);
-      assert.equal(catalog.defaultFirmwareVersion(firmware), 'v1.2.0');
+      assert.equal(catalog.defaultFirmwareVersion(firmware), 'v1.4.2');
     }
   }
   assert.equal(requests[0][1].cache, 'no-store');
@@ -63,10 +66,10 @@ test('failed refresh uses configured stable fallback and honors expandReleases f
 test('corrupt or disabled browser storage does not block successful release discovery', async () => {
   cache.set(`firmware-releases:${baseline.firmwareReleases.api}`, '{bad JSON');
   globalThis.fetch = async url => ({ok:true, json:async () => structuredClone(url === '/config.json' ? baseline : releases)});
-  assert.ok((await catalog.loadCatalog()).device[0].firmware[0].version['v1.2.0']);
+  assert.ok((await catalog.loadCatalog()).device[0].firmware[0].version['v1.4.2']);
   const storage = globalThis.localStorage;
   globalThis.localStorage = {getItem() {throw Error('disabled');}, setItem() {throw Error('disabled');}};
-  try { assert.ok((await catalog.loadCatalog()).device[0].firmware[0].version['v1.2.0']); }
+  try { assert.ok((await catalog.loadCatalog()).device[0].firmware[0].version['v1.4.2']); }
   finally {globalThis.localStorage = storage;}
 });
 
@@ -87,7 +90,7 @@ for(const source of ['feed', 'cache', 'fallback']) {
     const loaded = await catalog.loadCatalog();
     for(const device of loaded.device) {
       const fw = device.firmware[0];
-      assert.deepEqual(Object.keys(fw.version), device.slug === 'lilygo-tbeam-1w' ? ['v1.10.0'] : ['v1.10.0', 'v1.2.0']);
+      assert.deepEqual(Object.keys(fw.version), fw.silicon || device.slug === 'lilygo-tbeam-1w' ? ['v1.10.0'] : ['v1.10.0', 'v1.2.0']);
       assert.equal(catalog.defaultFirmwareVersion(fw), 'v1.10.0');
       for(const version of Object.values(fw.version)) {
         for(const file of version.files) assert.ok(catalog.firmwareUrl(loaded, file, version).includes(`/${version.ref}/firmware/`));
@@ -125,7 +128,13 @@ for(const source of ['feed', 'cache', 'fallback']) {
         assert.equal(device, undefined, 'no eligible release must hide device, never restore main');
         return;
       }
-      assert.deepEqual(loaded.device.toSorted(catalog.compareDevices).slice(0, 2).map(d => d.name), ['EtherMesh-1W', 'Photon-1W XAIO ESP32 C6']);
+      const ordered = loaded.device.toSorted(catalog.compareDevices);
+      if(tags.includes('v1.10.0')) {
+        assert.deepEqual(ordered.slice(0, 2).map(d => d.name), ['EtherMesh-1W', 'Photon-1W XAIO ESP32 C6']);
+      } else {
+        assert.equal(ordered[0].name, 'Photon-1W XAIO ESP32 C6');
+        assert.ok(!ordered.some(d => d.name === 'EtherMesh-1W'), 'P4 metadata floor is independent of T-Beam availability');
+      }
       const fw = device.firmware[0];
       assert.deepEqual(Object.keys(fw.version), expected);
       assert.equal(catalog.defaultFirmwareVersion(fw), expected[0]);
@@ -147,7 +156,7 @@ for(const source of ['feed', 'cache', 'fallback']) {
     cache.clear();
     t.mock.method(console, 'warn', () => {});
     const input = structuredClone(baseline);
-    const tag = 'v1.4.0'; // Eligible test fixture, not an assertion of an upstream release.
+    const tag = 'v1.4.2'; // Eligible test fixture, not an assertion of an upstream release.
     input.firmwareReleases.fallbackTags = [tag];
     const discovered = [{tag_name:tag}];
     // Supreme deliberately disables expansion. Supply an explicit eligible fixture

@@ -5,7 +5,7 @@
 		"tagPattern": "^v(?!1\\.0\\.0$)[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
 		"releaseBaseUrl": "https://github.com/openhop-dev/openhop_modem/releases/tag/",
 		"fallbackTags": [
-			"v1.0.1"
+			"v1.4.2"
 		]
 	},
 	"role": {
@@ -57,6 +57,7 @@
 				{
 					"role": "openHopModem",
 					"slug": "ethermesh",
+					"minimumRelease": "v1.4.2",
 					"silicon": {
 						"boardId": "ethermesh_1w",
 						"profiles": [
@@ -144,6 +145,7 @@
 			"firmware": [
 				{
 					"role": "openHopModem",
+					"minimumRelease": "v1.4.2",
 					"silicon": {
 						"boardId": "esp32_p4_nano",
 						"profiles": [

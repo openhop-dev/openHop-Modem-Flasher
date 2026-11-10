@@ -83,7 +83,9 @@ The selected release must contain `firmware.json`, `SHA256SUMS.txt`, and the mat
 
 Before detection, the Download menu does not offer an assumed legacy P4 BIN. Complete per-profile packages are available from the selected release page when published.
 
-Releases predating this metadata contract cannot be used for automatic P4 flashing through this implementation. A modem source PR/merge alone does not update existing release assets. Producer assets and a later selectable release containing both profiles, plus promotion of the flasher changes, are separate rollout steps; do not expose branch builds to work around missing releases.
+EtherMesh-1W and ESP32-P4 Nano require **v1.4.2 or newer** in release discovery, including cached and fallback lists. Earlier releases lack this metadata contract and are not offered for automatic P4 flashing. Other boards retain their own minimum releases.
+
+Release preparation on `dev` sets the API-outage fallback to `v1.4.2`. **Do not promote this configuration to the public flasher until that modem release is published with the matching metadata and all four P4 profile bundles.** A modem source merge starts asset generation; it does not update existing release tags. Verify and merge the generated asset PR, publish the completed firmware release, then promote this flasher branch. Do not expose branch builds to work around missing releases.
 
 ### Custom ESP32-P4 firmware
 
@@ -108,7 +110,7 @@ It verifies supplied checksums/components and exercises all 16 catalogue/custom,
 
 ### LilyGO T-Beam 1W
 
-This is a distinct device, not the T-Beam-S3 Supreme. It is available only when release discovery includes a published stable v1.4.0 or newer; older releases, branches and prereleases are not offered. If no eligible release is discovered (including the current v1.0.1-only fallback), the device remains hidden.
+This is a distinct device, not the T-Beam-S3 Supreme. It is available only when release discovery includes a published stable v1.4.0 or newer; older releases, branches and prereleases are not offered. If no eligible release is discovered, the device remains hidden. The release-prepared v1.4.2 fallback satisfies this board's minimum as well.
 
 - **Firmware-only update:** disable **Erase Device**, then use **Flash** to write `lilygo_tbeam_1w/firmware.bin` at `0x10000`.
 - **Initial install / full flash:** enable **Erase Device** to write the complete `lilygo_tbeam_1w/firmware.factory.bin` at `0x0`. This erases settings.

@@ -233,7 +233,8 @@ test('backend failure unlocks only after settlement and retry releases the exact
 
 test('selection defaults newest release and full flash for configured ESP32', () => {
   const app = createSetup(structuredClone(config))();
-  const device = app.config.device.find(d => d.name === 'EtherMesh-1W');
+  // Keep older-release selection coverage on a non-P4 board; P4 requires v1.4.2.
+  const device = app.config.device.find(d => d.name === 'Photon-1W XAIO ESP32 C6');
   const firmware = device.firmware[0];
   firmware.version = { 'v1.1.0': firmware.version['v1.1.0'], 'v1.2.0': firmware.version['v1.2.0'] };
   app.selected.device = device;
