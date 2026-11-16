@@ -1,11 +1,12 @@
-import { reactive, ref, shallowRef, nextTick, watch, computed } from '/lib/vue.prod.min.js?v=openhop16';
-import { SerialConsole } from '/lib/console.js?v=openhop16';
-import { commandReference } from './commands.js?v=openhop16';
-import { firmwareClasses, defaultFirmwareVersion, compareDevices, hasVersions, roleValue, renderNotice, formatChangeLog, firmwareUrl } from './catalog.js?v=openhop16';
-import { Dfu, downloadFirmware, esp32Address, flashEsp32, flashNrf52, isMergedImage, pickFlashFiles, releaseFlasher } from './flash.js?v=openhop16';
-import { CONSOLE_PATH, buildPath, parsePath, isSamePage } from './router.js?v=openhop16';
-import { serialAPI, serialSupported } from './serial.js?v=openhop16';
-import { isIframe, logoFile } from './site.js?v=openhop16';
+import { reactive, ref, shallowRef, nextTick, watch, computed } from '/lib/vue.prod.min.js?v=openhop17';
+import { selectP4Profile, loadP4Bundle, loadCustomP4Bundle } from './p4.js?v=openhop17';
+import { SerialConsole } from '/lib/console.js?v=openhop17';
+import { commandReference } from './commands.js?v=openhop17';
+import { firmwareClasses, defaultFirmwareVersion, compareDevices, hasVersions, roleValue, renderNotice, formatChangeLog, firmwareUrl } from './catalog.js?v=openhop17';
+import { Dfu, downloadFirmware, esp32Address, flashEsp32, flashNrf52, isMergedImage, pickFlashFiles, releaseFlasher } from './flash.js?v=openhop17';
+import { CONSOLE_PATH, buildPath, parsePath, isSamePage } from './router.js?v=openhop17';
+import { serialAPI, serialSupported } from './serial.js?v=openhop17';
+import { isIframe, logoFile } from './site.js?v=openhop17';
 
 const WEB_SERIAL_UNSUPPORTED = "Your browser doesn't support Web Serial API. Please use Chrome or Edge on Desktop";
 
@@ -34,6 +35,7 @@ export function createSetup(config) {
       active: false,
       busy: false,
       phase: '',
+      target: '',
       percent: 0,
       log: '',
       error: '',
@@ -87,7 +89,7 @@ export function createSetup(config) {
 
     const downloads = computed(() => {
       const { device } = selected;
-      if(!currentVersion.value || currentVersion.value.customFile) return [];
+      if(!currentVersion.value || currentVersion.value.customFile || selected.firmware?.silicon) return [];
       const files = currentVersion.value.files.map(file => ({ title: file.title, href: firmwareUrl(config, file, currentVersion.value) }));
       if(device.type === 'nrf52') {
         if(device.erase) {
@@ -134,7 +136,7 @@ export function createSetup(config) {
       flashing.busy = true;
       try {
         await releaseFlasher(flashing.instance);
-        Object.assign(flashing, { instance: null, active: false, phase: '', percent: 0, log: '', error: '', dfuComplete: false });
+        Object.assign(flashing, { instance: null, active: false, phase: '', target: '', percent: 0, log: '', error: '', dfuComplete: false });
       }
       finally {
         flashing.busy = false;
@@ -238,15 +240,22 @@ export function createSetup(config) {
 
     const customFirmwareLoad = (ev) => {
       if(flashing.active) return;
-      const file = ev.target.files[0];
-      if(!file) return;
+      const files = Array.from(ev.target.files);
+      if(!files.length) return;
+      const binaries = files.filter(file => file.name.endsWith('.bin') || file.name.endsWith('.zip'));
+      const metadata = files.find(file => file.name === 'firmware.json');
+      if(binaries.length !== 1 || files.length !== 1 + Number(Boolean(metadata)) || (metadata && !binaries[0].name.endsWith('.bin'))) {
+        alert('Select one BIN plus its matching firmware.json, or one inner nRF52 DFU ZIP.');
+        return;
+      }
+      const file = binaries[0];
       selected.wipe = false;
       selected.device = {
         name: 'Custom device',
         type: file.name.endsWith('.bin') ? 'esp32' : 'nrf52',
       };
 
-      if(isMergedImage(file.name)) {
+      if(isMergedImage(file.name) && !metadata) {
         alert(
           'You selected custom file that ends with "merged.bin". ' +
           'This will erase your flash! Proceed with caution. ' +
@@ -259,7 +268,7 @@ export function createSetup(config) {
         icon: 'unknown_document',
         title: file.name,
         version: {
-          [file.name]: { customFile: true, files: [{ type: 'flash', file }] },
+          [file.name]: { customFile: true, customMetadata: metadata, files: [{ type: 'flash', file }] },
         },
       };
       selected.version = file.name;
@@ -301,12 +310,23 @@ export function createSetup(config) {
       // Resolve every hardware input now, never from mutable selection after an await.
       const esp32 = selected.device.type === 'esp32';
       const wipe = selected.wipe;
-      const files = pickFlashFiles(currentVersion.value.files, { esp32, wipe }).map(file => ({
+      const custom = esp32 && currentVersion.value.customFile;
+      const customMetadata = currentVersion.value.customMetadata;
+      const boardName = selected.device.name;
+      const policy = selected.firmware.silicon;
+      // Capture every alternative URL now; detection must never re-read UI/config state.
+      const silicon = policy ? {boardId:policy.boardId,profiles:policy.profiles.map(profile => ({...profile,urls:{
+        metadata:firmwareUrl(config,{name:`${profile.environment}/firmware.json`},currentVersion.value),
+        checksums:firmwareUrl(config,{name:`${profile.environment}/SHA256SUMS.txt`},currentVersion.value),
+        factory:firmwareUrl(config,{name:`${profile.environment}/firmware.factory.bin`},currentVersion.value),
+        application:firmwareUrl(config,{name:`${profile.environment}/firmware.bin`},currentVersion.value),
+      }}))} : null;
+      const files = silicon ? [] : pickFlashFiles(currentVersion.value.files, { esp32, wipe }).map(file => ({
         data: file.file,
         url: file.file ? null : firmwareUrl(config, file, currentVersion.value),
         address: esp32Address(file),
       }));
-      if(!files.length) {
+      if(!files.length && !silicon) {
         alert('Cannot find configuration for flash file! please report this to Discord.');
         return;
       }
@@ -314,6 +334,7 @@ export function createSetup(config) {
       flashing.busy = true;
       flashing.active = true;
       flashing.phase = 'selecting';
+      flashing.target = '';
       const onProgress = (percent) => { flashing.percent = percent };
       try {
         // The chooser must run in the click handler, before network awaits consume activation.
@@ -323,13 +344,48 @@ export function createSetup(config) {
           data: file.data ?? await downloadFirmware(file.url),
           address: file.address,
         })));
-        flashing.phase = 'flashing';
+        flashing.phase = silicon ? 'detecting' : 'flashing';
         if(esp32) {
           await flashEsp32(port, data, {
             eraseAll: wipe,
             terminal: log,
             onProgress,
             onLoader: (loader) => { flashing.instance = loader },
+            resolvePlan: async loader => {
+              if(!silicon && !custom) {
+                if(loader.chip?.CHIP_NAME === 'ESP32-P4') throw new Error('The selected board has no P4 compatibility contract. Select the matching P4 board. No flash was written.');
+                return {images:data,eraseAll:wipe};
+              }
+              const describe=(target,name) => {
+                const text=`Detected ESP32-P4 ${target.revisionLabel} → ${name} ${target.label} (${target.environment})`;
+                flashing.target=text;
+                log.writeLine(text);
+                return text;
+              };
+              if(silicon) {
+                const target=await selectP4Profile(loader,silicon);
+                describe(target,boardName);
+                flashing.phase='downloading';
+                const images=await loadP4Bundle(target,{wipe,loader,onVerify:() => {flashing.phase='verifying';}});
+                flashing.phase='flashing';
+                return {images,eraseAll:wipe};
+              }
+              if(!loader.chip?.CHIP_NAME) throw new Error('Could not identify the connected ESP32 chip. No flash was written.');
+              if(loader.chip.CHIP_NAME !== 'ESP32-P4') {
+                if(customMetadata) throw new Error('P4 firmware.json requires an ESP32-P4 device. No flash was written.');
+                return {images:data,eraseAll:wipe};
+              }
+              flashing.phase='verifying';
+              const plan=await loadCustomP4Bundle(loader,files[0].data,customMetadata,{onTarget:describe});
+              const description=`ESP32-P4 ${plan.target.revisionLabel} — ${plan.boardName} ${plan.target.label}`;
+              const action=plan.eraseAll ? 'Full install: erases all settings.' : 'Firmware-only update: installed bootloader and partitions verified.';
+              flashing.phase='confirming';
+              if(!confirm(`${description}\n\nConfirm this is the physical board connected.\n${action}\nProceed?`)) {
+                throw new Error('Custom P4 flashing cancelled before erase/write. No flash was written.');
+              }
+              flashing.phase='flashing';
+              return plan;
+            },
           });
         }
         else {

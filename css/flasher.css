@@ -142,6 +142,13 @@ button {
 #app .console-input:focus, #app console-input:focus{
   outline: none;
 }
+#app .silicon-target {
+  margin: 1rem;
+  font-size: 0.875rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 #app .pre {
   white-space-collapse: preserve;
   min-width: min(300px, 100%);
@@ -250,6 +257,50 @@ button {
 }
 #app header nav:not(.top-nav) > :is(a, span) {
   flex-shrink: 1;
+}
+#app .flash-context {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+#app .flash-identity {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+#app .flash-identity > i {
+  flex-shrink: 0;
+}
+#app .flash-identity > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media screen and (width <= 540px) {
+  #app .flash-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  #app .flash-context {
+    display: contents;
+  }
+  #app .flash-identity:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  #app .flash-identity:last-child {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #app .flash-heading > a {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  #app .flash-separator {
+    display: none;
+  }
 }
 #app .list > li > .max {
   min-width: 0;

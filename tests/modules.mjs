@@ -31,7 +31,7 @@ export const hardwareStubs = {
   'lib/esp32.js': `export class Transport { async setRTS() {} async disconnect() {} }
     export class HardReset { async reset() {} }
     export class ESPLoader {
-      constructor(options) { this.transport = options.transport; }
+      constructor(options) { this.transport = options.transport; this.chip = {CHIP_NAME:'ESP32-S3'}; }
       async main() {} async flashId() {} async after() {}
       async writeFlash(options) {
         for (const file of options.fileArray) {

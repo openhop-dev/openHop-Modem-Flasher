@@ -24,8 +24,8 @@
   <meta name="twitter:description" content="Flash openHop Modem firmware onto supported MeshCore-compatible ESP32 and nRF52 devices directly from your browser.">
   <meta name="twitter:image" content="/img/openhop_logo.png">
   <link href="/css/beer.css" rel="stylesheet">
-  <link href="/css/flasher.css?v=openhop16" rel="stylesheet">
-  <script type="module" src="/flasher.js?v=openhop16"></script>
+  <link href="/css/flasher.css?v=openhop17" rel="stylesheet">
+  <script type="module" src="/flasher.js?v=openhop17"></script>
 </head>
 
 <body class="dark">
@@ -37,13 +37,18 @@
     <div class="flash-container">
       <div v-if="flashing.active">
         <header>
-          <nav>
-            <i>developer_board</i>
-            <span class="small">{{ selected.device.name }}</span>
-            <i>chevron_right</i>
-            <i>{{ fwValue(selected.firmware, 'icon') }}</i>
-            <span class="small strong">{{ fwValue(selected.firmware, 'title') }}</span>
-            <div class="max"></div>
+          <nav class="flash-heading">
+            <div class="flash-context">
+              <span class="flash-identity">
+                <i>developer_board</i>
+                <span class="small">{{ selected.device.name }}</span>
+              </span>
+              <i class="flash-separator">chevron_right</i>
+              <span class="flash-identity">
+                <i>{{ fwValue(selected.firmware, 'icon') }}</i>
+                <span class="small strong">{{ fwValue(selected.firmware, 'title') }}</span>
+              </span>
+            </div>
             <a class="button transparent" href="https://docs.openhop.dev/projects/openhop-modem/flasher/" target="_blank" rel="noopener noreferrer">
               <i>article</i>
               <span>Docs</span>
@@ -51,6 +56,7 @@
             </a>
           </nav>
         </header>
+        <p v-if="flashing.target" class="silicon-target" role="status" aria-live="polite">{{ flashing.target }}</p>
         <article v-if="flashing.error">
           <div class="row">
             <div class="max">
@@ -72,7 +78,7 @@
         <article v-else>
           <div class="row">
             <div class="max" v-if="flashing.percent < 100">
-              <h6><progress class="circle small"></progress> {{ flashing.phase === 'selecting' ? 'Select a device...' : flashing.phase === 'downloading' ? 'Downloading firmware...' : 'Flashing...' }}</h6>
+              <h6><progress class="circle small"></progress> {{ flashing.phase === 'selecting' ? 'Select a device...' : flashing.phase === 'detecting' ? 'Identifying device...' : flashing.phase === 'downloading' ? 'Downloading firmware...' : flashing.phase === 'verifying' ? 'Verifying firmware...' : flashing.phase === 'confirming' ? 'Confirm board and install mode...' : 'Flashing...' }}</h6>
               <p>Please do not disconnect the device</p>
             </div>
             <div class="max" v-else>
@@ -147,6 +153,8 @@
             </div>
           </nav>
         </header>
+        <p v-if="selected.firmware.silicon" class="silicon-target">The chip revision is checked after connection. Matching firmware is selected automatically.</p>
+        <p v-else-if="currentVersion?.customFile && selected.device.type === 'esp32'" class="silicon-target">For ESP32-P4, select the BIN and its matching firmware.json together. The board and install mode are confirmed before writing.</p>
         <ul class="list border" v-if="selected.device.type === 'esp32' && hasFlashWipe">
           <li>
             <label class="erase-control">
@@ -310,9 +318,10 @@
               <strong style="font-size: small;">Custom Firmware</strong>
               <div class="tooltip right max">
                 Flash custom firmware file from your computer.
-                Flasher supports <b>.bin</b> files for esp32 devices and OTA <b>.zip</b> files for nRF52 devices.
+                Flasher supports <b>.bin</b> files for ESP32 devices and inner DFU <b>.zip</b> files for nRF52 devices.
+                For ESP32-P4, select the BIN and its matching firmware.json together.
               </div>
-              <input type="file" accept=".zip,.bin" @change="customFirmwareLoad">
+              <input type="file" accept=".zip,.bin,.json" multiple @change="customFirmwareLoad">
             </label>
           </li>
         </ul>
